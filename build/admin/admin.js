@@ -7,8 +7,10 @@
 
   var DB_URL = '__DB_URL__', DB_KEY = '__DB_KEY__', LOC = __LOC_URLS__, SITE = 'https://dinerenenslapen.nl';
   var IDLE_MIN = 30;
+  // eigen, onraadbare opslagsleutel per tabblad: andere scripts op dit domein kunnen de sessie zo niet meelezen
+  var SK; try { SK = sessionStorage.getItem('dk') || 'sb-' + crypto.randomUUID(); sessionStorage.setItem('dk', SK); } catch (e) { SK = 'sb-' + crypto.randomUUID(); }
   var sb = window.supabase.createClient(DB_URL, DB_KEY, {
-    auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' }
+    auth: { storage: window.sessionStorage, storageKey: SK, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' }
   });
 
   var $ = function (id) { return document.getElementById(id); };
@@ -38,7 +40,8 @@
   function dt(s) { var d = new Date(s); return d.getDate() + ' ' + MND[d.getMonth()] + ' ' + d.getFullYear() + ', ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
   function dshort(s) { var d = new Date(s), now = new Date(); return d.getDate() + ' ' + MND[d.getMonth()] + (d.getFullYear() !== now.getFullYear() ? ' ' + d.getFullYear() : ''); }
   function month(m) { if (!m) return ''; var p = m.split('-'); return MND[+p[1] - 1] + ' ' + p[0]; }
-  function safeMail(m) { return /^[^@\s<>"]+@[^@\s<>"]+\.[^@\s<>"]+$/.test(m || '') ? m : null; }
+  function safeMail(m) { return /^[A-Za-z0-9._+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(m || '') ? m : null; }
+  function locOf(id) { return Object.prototype.hasOwnProperty.call(LOC, id) ? LOC[id] : null; }
   function toast(t) { var x = $('toast'); x.textContent = t; x.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { x.hidden = true; }, 3200); }
   function fail(e) { console.error(e); toast('Dat lukte niet: ' + ((e && e.message) || 'onbekende fout') + '. Probeer het opnieuw.'); }
   function pill(s) { return el('span', { class: 'pill ' + s, text: { nieuw: 'Nieuw', goedgekeurd: 'Goedgekeurd', afgewezen: 'Afgewezen', beantwoord: 'Beantwoord', gearchiveerd: 'Gearchiveerd', actief: 'Actief', afgemeld: 'Afgemeld', tip: 'Tip', contact: 'Contact' }[s] || s }); }
@@ -53,9 +56,10 @@
   }
 
   /* ---------- inloggen ---------- */
+  function box(id) { ['box-login', 'box-mfa', 'box-enroll', 'box-reset'].forEach(function (b) { $(b).hidden = b !== id; }); }
   function showLogin(msg, good) {
     $('app').hidden = true; $('who').hidden = true; $('login').hidden = false;
-    $('box-login').hidden = S.recovering; $('box-reset').hidden = !S.recovering;
+    box(S.recovering ? 'box-reset' : 'box-login');
     var m = $('l-msg'); m.hidden = !msg; m.textContent = msg || ''; m.className = 'msg' + (good ? ' good' : '');
   }
   $('f-login').addEventListener('submit', function (e) {
@@ -80,10 +84,54 @@
     if (a !== b) { m.hidden = false; m.textContent = 'De twee wachtwoorden zijn niet hetzelfde.'; return; }
     sb.auth.updateUser({ password: a }).then(function (r) {
       if (r.error) { m.hidden = false; m.textContent = r.error.message; return; }
-      S.recovering = false; $('r-pass').value = $('r-pass2').value = ''; toast('Je nieuwe wachtwoord is opgeslagen.'); start();
+      S.recovering = false; $('r-pass').value = $('r-pass2').value = '';
+      sb.auth.signOut({ scope: 'global' }).then(function () { showLogin('Je nieuwe wachtwoord is opgeslagen. Log nu in met je nieuwe wachtwoord.', true); });
     });
   });
-  $('logout').addEventListener('click', function () { sb.auth.signOut().then(function () { showLogin('Je bent uitgelogd.', true); }); });
+  function logout() { sb.auth.signOut().then(function () { showLogin('Je bent uitgelogd.', true); }); }
+  $('logout').addEventListener('click', logout);
+  document.querySelectorAll('[data-logout]').forEach(function (b) { b.addEventListener('click', logout); });
+
+  /* ---------- tweede stap: code uit een authenticator-app ---------- */
+  function codeMsg(id, t) { var m = $(id); m.hidden = !t; m.textContent = t || ''; }
+  function showMfa() { $('login').hidden = false; box('box-mfa'); codeMsg('m-msg'); $('m-code').value = ''; $('m-code').focus(); }
+  function showEnroll() {
+    $('login').hidden = false; box('box-enroll'); codeMsg('e-msg');
+    sb.auth.mfa.listFactors().then(function (f) {
+      var old = ((f.data && f.data.all) || []).filter(function (x) { return x.status !== 'verified'; });
+      return Promise.all(old.map(function (x) { return sb.auth.mfa.unenroll({ factorId: x.id }); }));
+    }).then(function () {
+      return sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Dineren en Slapen beheer', issuer: 'Dineren & Slapen' });
+    }).then(function (r) {
+      if (r.error) { codeMsg('e-msg', r.error.message); return; }
+      S.enroll = r.data.id; $('e-qr').src = qrSrc(r.data.totp.qr_code); $('e-secret').textContent = r.data.totp.secret; $('e-code').focus();
+    });
+  }
+  function qrSrc(q) {
+    q = String(q || '');
+    if (q.indexOf('data:image/svg+xml') !== 0) return q;
+    var svg = q.slice(q.indexOf(',') + 1);
+    try { if (/%3C/i.test(svg)) svg = decodeURIComponent(svg); } catch (e) {}
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+  function verify(factorId, code, msgId, btn) {
+    btn.disabled = true;
+    sb.auth.mfa.challengeAndVerify({ factorId: factorId, code: code }).then(function (r) {
+      btn.disabled = false;
+      if (r.error) { codeMsg(msgId, 'Die code klopt niet of is verlopen. Probeer de code die de app nu laat zien.'); return; }
+      start();
+    });
+  }
+  $('f-mfa').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var code = $('m-code').value.trim(), btn = e.target.querySelector('button');
+    sb.auth.mfa.listFactors().then(function (f) { var t = (f.data && f.data.totp || [])[0]; if (!t) { showEnroll(); return; } verify(t.id, code, 'm-msg', btn); });
+  });
+  $('f-enroll').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!S.enroll) return;
+    verify(S.enroll, $('e-code').value.trim(), 'e-msg', e.target.querySelector('button'));
+  });
 
   var idleT;
   function idle() { clearTimeout(idleT); idleT = setTimeout(function () { sb.auth.signOut().then(function () { showLogin('Je bent automatisch uitgelogd na ' + IDLE_MIN + ' minuten zonder activiteit.', true); }); }, IDLE_MIN * 60000); }
@@ -94,27 +142,41 @@
       var s = r.data && r.data.session;
       if (!s) { showLogin(); return; }
       if (S.recovering) { showLogin(); return; }
-      sb.rpc('is_admin').then(function (a) {
-        if (a.error || a.data !== true) { sb.auth.signOut(); showLogin('Dit account heeft geen toegang tot de beheeromgeving.'); return; }
-        $('login').hidden = true; $('app').hidden = false; $('who').hidden = false; $('who-mail').textContent = s.user.email;
-        idle(); load();
+      sb.auth.mfa.getAuthenticatorAssuranceLevel().then(function (l) {
+        var lv = l.data || {};
+        if (lv.currentLevel !== 'aal2') { if (lv.nextLevel === 'aal2') showMfa(); else showEnroll(); return; }
+        admitted(s);
       });
+    });
+  }
+  function admitted(s) {
+    sb.rpc('is_admin').then(function (a) {
+      if (a.error || a.data !== true) { sb.auth.signOut(); showLogin('Dit account heeft geen toegang tot de beheeromgeving.'); return; }
+      $('login').hidden = true; $('app').hidden = false; $('who').hidden = false; $('who-mail').textContent = s.user.email;
+      idle(); load();
     });
   }
   sb.auth.onAuthStateChange(function (ev) {
     if (ev === 'PASSWORD_RECOVERY') { S.recovering = true; showLogin(); return; }
-    if (ev === 'SIGNED_IN' && !S.loaded && !S.recovering) start();
+    if (ev === 'SIGNED_IN' && !S.loaded && !S.recovering && $('box-mfa').hidden && $('box-enroll').hidden) start();
     if (ev === 'SIGNED_OUT') { S.loaded = false; S.reviews = []; S.messages = []; S.subscribers = []; }
   });
 
-  /* ---------- gegevens ---------- */
+  /* ---------- gegevens: in porties van 500, zodat er nooit stil rijen wegvallen ---------- */
+  function all(t) {
+    var out = [];
+    function pg(f) {
+      return sb.from(t).select('*').order('created_at', { ascending: false }).order('id').range(f, f + 499).then(function (r) {
+        if (r.error) return r;
+        out = out.concat(r.data);
+        return r.data.length < 500 ? { data: out } : pg(f + 500);
+      });
+    }
+    return pg(0);
+  }
   function load() {
     $('refresh').disabled = true;
-    Promise.all([
-      sb.from('reviews').select('*').order('created_at', { ascending: false }).limit(2000),
-      sb.from('messages').select('*').order('created_at', { ascending: false }).limit(2000),
-      sb.from('subscribers').select('*').order('created_at', { ascending: false }).limit(10000)
-    ]).then(function (r) {
+    Promise.all([all('reviews'), all('messages'), all('subscribers')]).then(function (r) {
       $('refresh').disabled = false;
       var err = r.filter(function (x) { return x.error; })[0];
       if (err) { fail(err.error); return; }
@@ -197,7 +259,7 @@
     });
     // recent
     var all = [];
-    S.reviews.forEach(function (r) { all.push({ d: r.created_at, k: 'Review', t: r.loc_name + ': ' + r.name, go: ['reviews', r.status] }); });
+    S.reviews.forEach(function (r) { var L0 = locOf(r.loc_id); all.push({ d: r.created_at, k: 'Review', t: (L0 ? L0.n : 'Onbekend adres') + ': ' + r.name, go: ['reviews', r.status] }); });
     S.messages.forEach(function (r) { all.push({ d: r.created_at, k: r.kind === 'tip' ? 'Tip' : 'Contact', t: r.kind === 'tip' ? (r.address_name + (r.address_place ? ', ' + r.address_place : '')) : ((r.subject || 'Bericht') + (r.name ? ' van ' + r.name : '')), go: ['berichten', r.status] }); });
     S.subscribers.forEach(function (r) { all.push({ d: r.created_at, k: 'Abonnee', t: r.email, go: ['nieuwsbrief', r.status] }); });
     all.sort(function (a, b) { return a.d < b.d ? 1 : -1; });
@@ -211,11 +273,11 @@
     var cnt = function (s) { return S.reviews.filter(function (r) { return s === 'alle' || r.status === s; }).length; };
     seg($('rv-seg'), [['nieuw', 'Te beoordelen (' + cnt('nieuw') + ')'], ['goedgekeurd', 'Goedgekeurd (' + cnt('goedgekeurd') + ')'], ['afgewezen', 'Afgewezen (' + cnt('afgewezen') + ')'], ['alle', 'Alles']], S.rv, function (v) { S.rv = v; });
     var qq = q('rv-q');
-    var rows = S.reviews.filter(function (r) { return (S.rv === 'alle' || r.status === S.rv) && (!qq || (r.loc_name + ' ' + r.name + ' ' + r.body + ' ' + (r.email || '')).toLowerCase().indexOf(qq) >= 0); });
+    var rows = S.reviews.filter(function (r) { return (S.rv === 'alle' || r.status === S.rv) && (!qq || ((locOf(r.loc_id) || {}).n + ' ' + r.name + ' ' + r.body + ' ' + (r.email || '')).toLowerCase().indexOf(qq) >= 0); });
     var box = clear($('rv-list'));
     if (!rows.length) { box.appendChild(el('p', { class: 'empty', text: S.rv === 'nieuw' ? 'Er wachten geen reviews op je oordeel.' : 'Geen reviews in deze selectie.' })); return; }
     rows.forEach(function (r) {
-      var url = LOC[r.loc_id], mail = safeMail(r.email), avg = ((r.score_e + r.score_s + r.score_p) / 3).toFixed(1).replace('.', ',');
+      var L0 = locOf(r.loc_id), url = L0 && L0.u, mail = safeMail(r.email), avg = ((r.score_e + r.score_s + r.score_p) / 3).toFixed(1).replace('.', ',');
       var acts = el('div', { class: 'acts' });
       if (r.status !== 'goedgekeurd') acts.appendChild(el('button', { type: 'button', class: 'btn ok', text: r.status === 'afgewezen' ? 'Toch goedkeuren' : 'Goedkeuren en plaatsen', onclick: function () { update('reviews', r, { status: 'goedgekeurd', reviewed_at: new Date().toISOString() }, 'Goedgekeurd. De review staat nu op de site.'); } }));
       if (r.status !== 'afgewezen') acts.appendChild(el('button', { type: 'button', class: 'btn no', text: r.status === 'goedgekeurd' ? 'Offline halen en afwijzen' : 'Afwijzen', onclick: function () { update('reviews', r, { status: 'afgewezen', reviewed_at: new Date().toISOString() }, 'Afgewezen. De review komt niet op de site.'); } }));
@@ -224,7 +286,8 @@
       acts.appendChild(el('span', { class: 'grow' }));
       acts.appendChild(confirmBtn('Verwijderen', 'link del', function () { remove('reviews', r, 'Review verwijderd.'); }));
       box.appendChild(el('article', { class: 'card s-' + r.status },
-        el('div', { class: 'ch' }, el('h3', null, url ? el('a', { href: SITE + url, target: '_blank', rel: 'noopener noreferrer', text: r.loc_name }) : r.loc_name), pill(r.status)),
+        el('div', { class: 'ch' }, el('h3', null, L0 ? el('a', { href: SITE + url, target: '_blank', rel: 'noopener noreferrer', text: L0.n }) : 'Onbekend adres'), pill(r.status)),
+        L0 && L0.n !== r.loc_name ? el('p', { class: 'warn', text: 'Let op: de inzender noemde dit adres "' + r.loc_name + '". De review komt bij ' + L0.n + ' te staan.' }) : null,
         el('div', { class: 'meta' }, el('span', { text: 'Door ' + r.name }), r.visit_month ? el('span', { text: 'Bezocht in ' + month(r.visit_month) }) : null, el('span', { text: 'Ingestuurd ' + dt(r.created_at) }), r.lang === 'en' ? el('span', { text: 'Engelstalige pagina' }) : null,
           mail ? el('a', { href: 'mailto:' + mail + '?subject=' + encodeURIComponent('Je review van ' + r.loc_name), text: mail }) : el('span', { text: 'Geen e-mailadres' })),
         el('div', { class: 'scores' }, el('span', null, 'Eten', el('b', { text: String(r.score_e) })), el('span', null, 'Slapen', el('b', { text: String(r.score_s) })), el('span', null, 'Prijs', el('b', { text: String(r.score_p) })), el('span', null, 'Gemiddeld', el('b', { text: avg }))),
@@ -283,7 +346,7 @@
   $('sb-csv').addEventListener('click', function () {
     var rows = activeInView();
     if (!rows.length) { toast('Er zijn geen actieve abonnees in deze selectie.'); return; }
-    var esc = function (s) { s = String(s == null ? '' : s); if (/^[=+\-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+    var esc = function (s) { s = String(s == null ? '' : s); if (/^[=+\-@\s]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
     var csv = '﻿email;ingeschreven;pagina;taal\r\n' + rows.map(function (r) { return [r.email, r.created_at.slice(0, 10), r.source, r.lang].map(esc).join(';'); }).join('\r\n');
     var url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
     var a = el('a', { href: url, download: 'nieuwsbrief-abonnees-' + new Date().toISOString().slice(0, 10) + '.csv' });

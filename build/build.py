@@ -20,6 +20,11 @@ D = json.load(open(os.path.join(HERE, 'data', 'data.json')))
 BL = json.load(open(os.path.join(HERE, 'data', 'blog.json')))
 POSTS, CATS = BL['posts'], BL['cats']
 LOCS, PROVS, W0 = D['locs'], D['provs'], D['w0']
+# eigen bezoeken: teksten en foto's van de makers gaan voor de eerdere versie
+_own = os.path.join(HERE, 'data', 'own.json')
+OWN = json.load(open(_own)) if os.path.exists(_own) else {}
+for _l in LOCS:
+    if _l['id'] in OWN: _l.update(OWN[_l['id']])
 PBY = {p['id']: p for p in PROVS}
 LBY = {l['id']: l for l in LOCS}
 CSS = open(os.path.join(HERE, 'style.css')).read()
@@ -151,13 +156,15 @@ for line in open(BLOBS):
 os.makedirs(OUT, exist_ok=True)
 IMG_DONE = {}
 def src_path(name):
+    own = os.path.join(HERE, 'photos', name + '.jpg')
+    if os.path.exists(own): return own
     for d in ('n', 'f', ''):
         p = os.path.join(ASSETS, d, name + '.jpg')
         if os.path.exists(p): return p
     return None
 def img_variants(blob, widths=(480, 960, 1600)):
     bid = blob.rsplit('/', 1)[-1] if blob else ''
-    name = BLOB2NAME.get(bid)
+    name = bid[4:] if bid.startswith('own:') else BLOB2NAME.get(bid)
     if not name: return None
     key = (name, widths)
     if key in IMG_DONE: return IMG_DONE[key]
@@ -205,18 +212,18 @@ def prov_text(P, lang):
     nw = words[len(ls)] if len(ls) < 6 else str(len(ls))
     L = lambda a: lst(a, lang)
     if nl:
-        intro2 = 'In %s houden we het bij %s adressen. Er is meer, maar we schrijven alleen op waar we zelf terug zouden gaan. Moeten we er één kiezen, dan wordt het %s.' % (pn, nw, top['name'])
+        intro2 = 'In %s staan nu %s adressen in het boek. Komen we meer tegen dat erbij hoort, dan komt het erbij. Moeten we er één kiezen, dan wordt het %s.' % (pn, nw, top['name'])
         if starred: intro2 += ' Wie voor een ster komt, zit goed bij %s.' % L(l['name'] for l in starred)
-        intro2 += ' De volgende plek is nog leeg: daar zijn we nog aan het testen.'
+        intro2 += (' De volgende plek is nog leeg: dat adres gaan we nog proberen.' if P.get('open') else '')
         faq = [('Waar kun je in %s eten en blijven slapen?' % pn, 'In ons boek staan %s adressen in %s: %s.' % (nw, pn, L('%s in %s' % (l['name'], l['place']) for l in ls))),
                ('Waar zouden jullie zelf heen gaan in %s?' % pn, '%s in %s. %s%s' % (top['name'], top['place'], top['kort']['nl'] + ' ', ('Zit dat vol, dan bellen we %s.' % sec['name']) if sec else '')),
                ('Wat kost een diner met overnachting in %s?' % pn, 'Reken voor twee op %s bij %s%s, voor het diner, een nacht en het ontbijt. De bedragen komen uit hun eigen boekingssysteem, voor een doordeweekse nacht in november 2026.' % (eur(lo['pz']['p2']), lo['name'], (' tot %s bij %s' % (eur(hi['pz']['p2']), hi['name'])) if hi is not lo else ''))]
         faq.append(('Kun je in %s bij een sterrenrestaurant blijven slapen?' % pn, ('Ja: bij %s. Je loopt na het dessert zo naar boven.' % L('%s in %s' % (l['name'], l['place']) for l in starred)) if starred else 'Nog niet bij een adres met een ster. Wel bij plekken waar we net zo graag zitten.'))
         if len(sized) > 1: faq.append(('Wat is het kleinste en het grootste adres?', 'Het kleinste is %s met %s. Het grootste is %s met %s. Klein betekent vooral: vroeg boeken.' % (sized[0][1]['name'], sized[0][1]['rooms']['nl'][0].lower() + sized[0][1]['rooms']['nl'][1:], sized[-1][1]['name'], sized[-1][1]['rooms']['nl'][0].lower() + sized[-1][1]['rooms']['nl'][1:])))
     else:
-        intro2 = 'In %s we keep it to %s addresses. There are more, but we only write down the places we would go back to. If we had to pick one, it would be %s.' % (pn, nw, top['name'])
+        intro2 = 'In %s the book holds %s addresses for now. When we come across more that belong here, they go in. If we had to pick one, it would be %s.' % (pn, nw, top['name'])
         if starred: intro2 += ' If you are coming for a star, try %s.' % L(l['name'] for l in starred)
-        intro2 += ' The next place is still empty: we are still testing.'
+        intro2 += (' The next place is still empty: that is the address we are trying next.' if P.get('open') else '')
         faq = [('Where can you dine and stay the night in %s?' % pn, 'Our book lists %s addresses in %s: %s.' % (nw, pn, L('%s in %s' % (l['name'], l['place']) for l in ls))),
                ('Where would you go yourselves in %s?' % pn, '%s in %s. %s%s' % (top['name'], top['place'], top['kort']['en'] + ' ', ('If it is full, we ring %s.' % sec['name']) if sec else '')),
                ('What does dinner with an overnight stay cost in %s?' % pn, 'For two, count on %s at %s%s, for dinner, one night and breakfast. Amounts come from their own booking systems, for a weeknight in November 2026.' % (eur(lo['pz']['p2'], 'en'), lo['name'], (' up to %s at %s' % (eur(hi['pz']['p2'], 'en'), hi['name'])) if hi is not lo else ''))]
@@ -248,7 +255,8 @@ def badges(l, lang):
     for o in l.get('other') or []: b.append(('', o))
     return b
 def chips(l, lang, n=4):
-    return '<div class="chips">' + ''.join('<span class="chip %s">%s</span>' % (c, esc(t)) for c, t in badges(l, lang)[:n]) + '</div>'
+    been = ('<span class="chip been">%s</span>' % ('Zelf geweest' if lang == 'nl' else 'Visited by us')) if l.get('visited') else ''
+    return '<div class="chips">' + been + ''.join('<span class="chip %s">%s</span>' % (c, esc(t)) for c, t in badges(l, lang)[:n]) + '</div>'
 
 # ---------- layout ----------
 T = {
@@ -443,6 +451,7 @@ def build_loc(l, lang):
     facts = price_facts(l, lang)
     if l.get('rooms'): facts.append(('Kamers' if nl else 'Rooms', l['rooms'][lang]))
     if l.get('people'): facts.append(('Aan het roer' if nl else 'In charge', l['people']))
+    if l.get('visited'): facts.insert(0, ('Wij waren er' if nl else 'Our visits', l['visited'][lang]))
     facts.append(('Ligging' if nl else 'Location', '%s, %s' % (l['place'], pn)))
     facts.append(('Reserveren' if nl else 'Booking', ('Rechtstreeks via ' if nl else 'Directly via ') + host))
     dl = ''.join('<dt>%s</dt><dd>%s</dd>' % (esc(k), esc(v)) for k, v in facts)
@@ -460,7 +469,7 @@ def build_loc(l, lang):
         'Gerekend met hun eigen site en boekingssysteem, voor een doordeweekse nacht in november 2026. Kijk voor jouw datum bij het adres zelf.' if nl else 'Worked out from their own website and booking system for a weeknight in November 2026. Check your own date with the address.',
         num(total(l), lang), T[lang]['ourscore'], (('Nummer %d van de %d adressen in Nederland, nummer %d in %s.' if nl else 'Number %d of %d addresses in the Netherlands, number %d in %s.') % (RANK[l['id']], len(LOCS), in_prov(l['prov']).index(l) + 1, pn)), bars,
         svg_map(lang, only=l['prov']))
-    h += reviews_section(l, lang)
+    h += gallery_section(l, lang) + reviews_section(l, lang)
     # interne links
     ex = ''
     sib = [x for x in in_prov(l['prov']) if x is not l]
@@ -582,13 +591,13 @@ def build_keur():
           '<p>De regel is eenvoudig: je eet en je slaapt op hetzelfde adres. Na het dessert de trap op en klaar.</p>'
           '<p>Een hotel waar je voor het diner naar een andere deur moet, valt af. Ook als die deur ernaast zit. Hetzelfde geldt voor een restaurant met kamers een eind verderop. Het kunnen prima plekken zijn, maar ze horen niet in dit boek.</p>'
           '<p>Verder zoeken we huizen met een eigen gezicht: een borg, een havezate, een molen, een herberg waar de eigenaar zelf in de zaak staat. Ketens laten we liggen.</p>'
-          '<p>En we houden het klein: per provincie hooguit vier adressen, waar minder keus is drie of twee. Daarachter staat altijd een lege plek. Daar zijn we nog aan het testen.</p>'
+          '<p>Een maximum per provincie is er niet. Staan er in een provincie tien adressen die erbij horen, dan staan er tien. Waar we nog iets op het oog hebben, staat achter het laatste adres een lege plek: dat is het volgende adres dat we gaan proberen.</p>'
           '<p>Adressen die het net niet haalden, zetten we niet op de site. Die delen we alleen in de <a href="/net-niet/">nieuwsbrief</a>.</p></div></section>')
     h += ('<section class="sec" id="cijfers"><div class="narrow prose stack"><p class="k">Onze cijfers</p><h2>Zo komen onze cijfers tot stand</h2>'
           '<p>Bij elk adres staan drie cijfers, van onszelf. Eten telt bij ons iets zwaarder dan de andere twee: %d procent, slapen en prijs elk %d.</p>'
           '<ul><li><strong>Eten.</strong> De avond aan tafel: smaak, het menu, de ontvangst. Een ster helpt, maar een ster eet je niet op.</li><li><strong>Slapen.</strong> De kamer, het bed, de badkamer, de stilte, en het ontbijt de volgende ochtend.</li><li><strong>Prijs.</strong> Wat je voor de avond en de nacht samen betaalt, tegenover wat je krijgt. Een hoog cijfer betekent veel waar voor je geld, niet dat het goedkoop is.</li></ul>'
-          '<p>De prijs voor twee is wat twee personen kwijt zijn voor diner, één nacht en ontbijt, zonder drank tenzij die in het menu zit. We rekenen met hun eigen boekingssysteem, voor een doordeweekse nacht in november 2026. Hoe dat uitpakt, lees je in <a href="/verhalen/wat-kost-dineren-en-slapen/">wat een avond uit eten met overnachting kost</a>.</p>'
-          '<p>De prijs alleen bepaalt de plek niet. %s is met %s het voordeligste adres en staat op plek %d. %s is het duurste en staat op %d. Bekijk de <a href="/top-10/">top 10</a>.</p></div></section>') % (
+          '<p>De prijs voor twee is wat twee personen kwijt zijn voor diner, één nacht en ontbijt, zonder drank tenzij die in het menu zit. We rekenen met wat het adres zelf op zijn site of in zijn boekingssysteem zet, voor een doordeweekse nacht in november 2026. Staat niet alles online, dan schatten we, en dat zetten we er dan bij. Hoe dat uitpakt, lees je in <a href="/verhalen/wat-kost-dineren-en-slapen/">wat een avond uit eten met overnachting kost</a>.</p>'
+          '<p>De prijs alleen bepaalt de plek niet. Het voordeligste adres is %s, %s, en staat op plek %d. Het duurste is %s, op plek %d. Bovenaan staan de adressen waar de avond, de nacht en de prijs samen het beste kloppen. Bekijk de <a href="/top-10/">top 10</a>.</p></div></section>') % (
         W0['e'], W0['s'], esc(cheap['name']), p2(cheap, 'nl'), RANK[cheap['id']], esc(dear['name']), RANK[dear['id']])
     labs = [('Michelinster', '%d adressen' % (s1 + s2 + s3), 'Eén ster: een keuken die een stop waard is. Twee sterren: een omweg waard. Drie: de reis zelf waard. In dit boek hebben %d adressen één ster, %d twee en %d drie.' % (s1, s2, s3)),
             ('Bib Gourmand', '%d adressen' % bib, 'Goed eten voor een redelijke prijs, volgens de Michelingids.'),
@@ -656,7 +665,7 @@ def write_static():
     open(os.path.join(OUT, 'robots.txt'), 'w').write('User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: %s/sitemap.xml\n' % SITE)
     # llms.txt
     L = ['# Dineren en Slapen', '', '> Onafhankelijke Nederlandse gids van restaurants met overnachting: adressen waar je dineert en blijft slapen onder één dak. %d adressen in twaalf provincies, met eigen cijfers voor eten, slapen en prijs, en een prijs voor twee (diner, een nacht en ontbijt, gecheckt in hun eigen boekingssysteem voor een doordeweekse nacht in november 2026).' % len(LOCS), '',
-         'Regels: eten en slapen op hetzelfde adres, geen ketens, hooguit vier adressen per provincie. Een plek in het boek is niet te koop.', '', '## Belangrijkste pagina\'s', '',
+         'Regels: eten en slapen op hetzelfde adres, geen ketens, geen maximum per provincie. Een plek in het boek is niet te koop.', '', '## Belangrijkste pagina\'s', '',
          '- [Top 10 restaurants met overnachting](%s/top-10/): onze tien favorieten, met %s op één' % (SITE, ORDER[0]['name']), '- [Zo kiezen wij](%s/zo-kiezen-wij/): regels, cijfers en keurmerken uitgelegd' % SITE, '- [Verhalen](%s/verhalen/): prijzen, arrangementen en regio\'s' % SITE, '', '## Per provincie', '']
     for p in PROV_ORDER:
         ls = in_prov(p['id']); v = [l['pz']['p2'] for l in ls]

@@ -28,6 +28,33 @@
     </form>
     <button type="button" class="link" id="l-forgot">Wachtwoord vergeten?</button>
   </section>
+  <section class="box" id="box-mfa" hidden>
+    <h1>Code uit je app</h1>
+    <p class="muted">Open je authenticator-app (bijvoorbeeld Google Authenticator of Microsoft Authenticator) en vul de zes cijfers in bij Dineren &amp; Slapen.</p>
+    <form id="f-mfa">
+      <label>Code<input id="m-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label>
+      <button class="btn" type="submit">Verder</button>
+      <p class="msg" id="m-msg" role="alert" hidden></p>
+    </form>
+    <button type="button" class="link" data-logout>Andere gebruiker</button>
+  </section>
+  <section class="box" id="box-enroll" hidden>
+    <h1>Extra beveiliging instellen</h1>
+    <p class="muted">Eenmalig: koppel een authenticator-app aan je account. Daarna log je steeds in met je wachtwoord en een code uit die app.</p>
+    <ol class="steps">
+      <li>Installeer op je telefoon Google Authenticator of Microsoft Authenticator.</li>
+      <li>Kies in de app voor een nieuwe code en scan deze QR-code.</li>
+      <li>Vul de zes cijfers in die de app nu laat zien.</li>
+    </ol>
+    <img id="e-qr" class="qr" alt="QR-code om de authenticator-app te koppelen" width="200" height="200">
+    <p class="muted small">Lukt scannen niet? Vul in de app deze sleutel in: <code id="e-secret"></code></p>
+    <form id="f-enroll">
+      <label>Code uit de app<input id="e-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label>
+      <button class="btn" type="submit">Koppelen en verder</button>
+      <p class="msg" id="e-msg" role="alert" hidden></p>
+    </form>
+    <button type="button" class="link" data-logout>Uitloggen</button>
+  </section>
   <section class="box" id="box-reset" hidden>
     <h1>Nieuw wachtwoord</h1>
     <p class="muted">Kies een wachtwoord van minstens 12 tekens.</p>

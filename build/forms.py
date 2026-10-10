@@ -21,7 +21,7 @@ review:function(f){return['reviews',{loc_id:f.dataset.loc,loc_name:f.dataset.nam
 document.querySelectorAll('.js-form').forEach(function(f){f.addEventListener('submit',function(e){e.preventDefault();
 var w=f.closest('.fwrap')||f.parentNode,er=w.querySelector('.ferr'),b=f.querySelector('[type=submit]');
 function done(){w.classList.add('sent');var t=w.querySelector('.thanks');if(t){t.setAttribute('tabindex','-1');t.focus()}}
-if(v(f,'website')||Date.now()-t0<2500){done();return}
+if(v(f,'website')){done();return}
 if(!DB.url){if(er){er.hidden=false;er.textContent=MSG[L].fail}return}
 var m=MAP[f.dataset.kind](f);b.disabled=true;if(er)er.hidden=true;
 fetch(DB.url+'/rest/v1/'+m[0],{method:'POST',headers:hd(),body:JSON.stringify(m[1])}).then(function(r){
@@ -110,10 +110,11 @@ def build_privacy():
     h = ('<section class="sec"><div class="narrow prose stack">%s<h1 style="font-size:clamp(36px,6vw,54px)">Privacy</h1>'
          '<p>Deze site gebruikt geen tracking-cookies, geen advertentienetwerken en geen analysediensten.</p>'
          '<h2>Wat we bewaren</h2><ul>'
-         '<li><strong>Nieuwsbrief.</strong> Je e-mailadres, de pagina waar je je inschreef en de datum. Alleen om je de nieuwsbrief te sturen. Afmelden kan altijd; dan verwijderen we je adres.</li>'
-         '<li><strong>Tips en contactberichten.</strong> Wat je invult, zodat we kunnen kijken en antwoorden. We bewaren dit hooguit twee jaar.</li>'
+         '<li><strong>Nieuwsbrief.</strong> Je e-mailadres, de pagina waar je je inschreef en de datum. Alleen om je de nieuwsbrief te sturen. Afmelden kan altijd.</li>'
+         '<li><strong>Tips en contactberichten.</strong> Wat je invult, zodat we kunnen kijken en antwoorden.</li>'
          '<li><strong>Reviews.</strong> Je voornaam, je bezoekmaand, je cijfers en je tekst. Na goedkeuring staan je voornaam, maand, cijfers en tekst op de site. Je e-mailadres, als je het invult, komt nooit op de site.</li>'
-         '<li><strong>Bescherming tegen spam.</strong> Bij elke inzending bewaren we een onomkeerbare code die van je IP-adres is afgeleid, zodat we massaal versturen kunnen tegenhouden. Je IP-adres zelf bewaren we niet.</li></ul>'
+         '<li><strong>Bescherming tegen spam.</strong> Bij elke inzending bewaren we een versleutelde code die van je IP-adres is afgeleid, zodat we massaal versturen kunnen tegenhouden. Die code wissen we na twee uur. Je IP-adres zelf bewaren we niet; onze databaseleverancier houdt IP-adressen kort bij in technische logboeken.</li></ul>'
+         '<h2>Hoe lang</h2><ul><li>Berichten en tips: hooguit twee jaar.</li><li>Reviews: zolang ze op de site staan. Je e-mailadres bij een review wissen we na een jaar, afgewezen reviews na een jaar.</li><li>Nieuwsbrief: tot je je afmeldt. Na afmelden wissen we je adres binnen dertig dagen.</li></ul>'
          '<h2>Waar het staat</h2><p>De gegevens staan in een beveiligde database van Supabase, op servers in Frankfurt (EU). Alleen wij kunnen erbij, met een eigen inlog. We verkopen niets en geven niets door.</p>'
          '<h2>Inzien of verwijderen</h2><p>Wil je weten wat we van je hebben, of wil je dat we het verwijderen? Mail ons op <a href="mailto:%s">%s</a>. We regelen het binnen een maand.</p></div></section>') % (crumbs(items, light=True), MAIL, MAIL)
     page('/privacy/', 'nl', 'Privacy | Dineren en Slapen', 'Geen tracking en geen advertenties. Wat we bewaren als je je inschrijft, een tip of review stuurt of contact opneemt, en waar het staat.', h, '', None, [ld_crumbs(items)], prio=0.1)
@@ -125,7 +126,19 @@ def write_admin():
     for f in os.listdir(src):
         p = os.path.join(src, f)
         if f.endswith(('.html', '.js', '.css')):
-            s = open(p, encoding='utf-8').read().replace('__DB_URL__', DB['url']).replace('__DB_KEY__', DB['key']).replace('__DB_HOST__', host).replace('__LOC_URLS__', json.dumps({l['id']: u_loc(l, 'nl') for l in LOCS}))
+            s = open(p, encoding='utf-8').read().replace('__DB_URL__', DB['url']).replace('__DB_KEY__', DB['key']).replace('__DB_HOST__', host).replace('__LOC_URLS__', json.dumps({l['id']: {'u': u_loc(l, 'nl'), 'n': l['name']} for l in LOCS}, ensure_ascii=False))
             open(os.path.join(dst, f), 'w', encoding='utf-8').write(s)
         else:
             shutil.copy(p, os.path.join(dst, f))
+
+def gallery_section(l, lang):
+    if not l.get('gallery'): return ''
+    nl = lang == 'nl'; figs = ''
+    for i, (name, cnl, cen) in enumerate(l['gallery']):
+        v = img_variants('own:' + name)
+        if not v: continue
+        cap = cnl if nl else cen
+        figs += '<figure><a href="%s" target="_blank" rel="noopener">%s</a><figcaption>%s</figcaption></figure>' % (v[-1][2], pic('own:' + name, cap, '(max-width: 760px) 50vw, 300px', widths=(480, 960)), esc(cap))
+    return ('<section class="sec" id="fotos"><div class="wrap stack"><p class="k">%s</p><h2>%s</h2><div class="gal">%s</div><p class="meta">%s</p></div></section>') % (
+        'Onze foto\'s' if nl else 'Our photos', ('Zo was het bij %s' if nl else 'How it was at %s') % esc(l['name']), figs,
+        'Eigen foto\'s van onze bezoeken. Klik op een foto voor een grotere versie.' if nl else 'Our own photos from our visits. Click a photo for a larger version.')

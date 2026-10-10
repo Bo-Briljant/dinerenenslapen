@@ -382,4 +382,11 @@ footer.ft .base{border-top:1px solid #2A3A33;margin-top:44px;padding-top:20px;di
 .chk{display:flex!important;grid-template-columns:none;align-items:center;gap:10px;min-height:44px}
 .chk input{width:20px;height:20px;accent-color:var(--wine);margin:0}
 .fwrap .thanks:focus{outline:none}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,46%),1fr));gap:18px}
+.gal figure{margin:0;display:grid;gap:8px}
+.gal a{display:block;aspect-ratio:3/4;overflow:hidden;background:var(--c2)}
+.gal img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.gal a:hover img{transform:scale(1.03)}
+.gal figcaption{margin:0;color:var(--mute)}
+.chip.been{background:#2C5A8A;border-color:#2C5A8A;color:#fff}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}

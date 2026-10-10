@@ -158,10 +158,10 @@ def home_sections(lang):
         'Twaalf hoofdstukken' if nl else 'Twelve chapters', 'Dineren en slapen per provincie' if nl else 'Dine and stay by province', cards)
     stars_n = len([l for l in LOCS if l['ms']])
     keur = [('Ons boek', 'Per adres schrijven we op wat je kunt verwachten: de keuken, de kamers, het huis en wat een avond met overnachting voor twee kost.'),
-            ('Zo kiezen wij', 'Je eet en je slaapt onder hetzelfde dak, en het huis heeft een eigen gezicht. Per provincie houden we het bij een paar adressen. Ketens laten we liggen.'),
+            ('Zo kiezen wij', 'Je eet en je slaapt onder hetzelfde dak, en het huis heeft een eigen gezicht. Een maximum per provincie is er niet: wat erbij hoort, komt erin. Ketens laten we liggen.'),
             ('Onze cijfers', 'Bij elk adres geven we een cijfer voor eten, slapen en prijs. %d adressen hebben een Michelinster, maar bij ons tellen de nacht en de prijs net zo goed mee als het bord.' % stars_n)] if nl else \
            [('Our book', 'For every address we write down what to expect: the kitchen, the rooms, the house and what an evening with a night\'s stay costs for two.'),
-            ('How we choose', 'You dine and sleep under one roof, and the house has a character of its own. We keep it to a few addresses per province and leave chains aside.'),
+            ('How we choose', 'You dine and sleep under one roof, and the house has a character of its own. There is no limit per province: whatever belongs here goes in. We leave chains aside.'),
             ('Our scores', 'Every address gets a score for food, stay and price. %d addresses hold a Michelin star, but the night and the price count just as much as the plate.' % stars_n)]
     h += ('<section class="sec2 dark" id="keurmerken"><div class="wrap stack0"><p class="k">%s</p><h2>%s</h2><dl class="keur">%s</dl><p><a class="btn" href="/zo-kiezen-wij/">%s</a></p></div></section>') % (
         'Leeswijzer' if nl else 'Reading guide', 'Keurmerken en onze cijfers' if nl else 'Quality labels and our scores',

@@ -6,9 +6,16 @@
 --    Ze kunnen niets lezen, wijzigen of verwijderen.
 --  * Goedgekeurde reviews zijn alleen leesbaar via de functie approved_reviews(), zonder e-mailadres.
 --  * Alleen ingelogde gebruikers wier e-mailadres in public.admins staat, kunnen lezen en beheren.
---  * Elke inzending krijgt een gehashte vingerafdruk van het IP-adres; meer dan 5 per uur wordt geweigerd.
+--  * Elke inzending krijgt een HMAC-code van het IP-adres (IPv6 per /64) met een geheim zout; die code wordt na
+--    twee uur gewist. Meer dan 5 per uur per bezoeker, of 100 per uur in totaal per tabel, wordt geweigerd.
+--  * Beheerders moeten met wachtwoord EN een code uit een authenticator-app inloggen (aal2).
 
 create extension if not exists pgcrypto with schema extensions;
+
+create schema if not exists private;
+revoke all on schema private from public, anon, authenticated;
+create table if not exists private.settings (k text primary key, v text not null);
+insert into private.settings values ('fp_salt', encode(extensions.gen_random_bytes(32), 'hex')) on conflict do nothing;
 
 -- ---------- beheerders ----------
 create table if not exists public.admins (
@@ -19,8 +26,8 @@ revoke all on public.admins from anon, authenticated;
 -- geen policies: de lijst is alleen via de functie hieronder te raadplegen
 
 create or replace function public.is_admin() returns boolean
-language sql stable security definer set search_path = public as $$
-  select coalesce((auth.jwt() ->> 'email') is not null
+language sql stable security definer set search_path = '' as $$
+  select coalesce(auth.jwt() ->> 'aal' = 'aal2'
     and exists (select 1 from public.admins a where a.email = lower(auth.jwt() ->> 'email')), false)
 $$;
 revoke all on function public.is_admin() from public, anon;
@@ -28,24 +35,28 @@ grant execute on function public.is_admin() to authenticated;
 
 -- ---------- vingerafdruk en spamrem ----------
 create or replace function public.client_fp() returns text
-language sql stable as $$
-  select encode(extensions.digest(
-    coalesce(
-      nullif(current_setting('request.headers', true)::json ->> 'cf-connecting-ip', ''),
-      nullif(split_part(current_setting('request.headers', true)::json ->> 'x-forwarded-for', ',', 1), ''),
-      'onbekend') || '|dineren-en-slapen', 'sha256'), 'hex')
-$$;
+language plpgsql stable set search_path = '' as $$
+declare ip text; net text;
+begin
+  ip := nullif(current_setting('request.headers', true), '')::json ->> 'cf-connecting-ip';
+  begin
+    net := case when family(ip::inet) = 6 then network(set_masklen(ip::inet, 64))::text else host(ip::inet) end;
+  exception when others then net := null;
+  end;
+  return encode(extensions.hmac(coalesce(net, 'onbekend'), (select v from private.settings where k = 'fp_salt'), 'sha256'), 'hex');
+end $$;
 revoke all on function public.client_fp() from public, anon, authenticated;
 
 create or replace function public.guard_insert() returns trigger
-language plpgsql security definer set search_path = public as $$
-declare n int;
+language plpgsql security definer set search_path = '' as $$
+declare n int; total int;
 begin
   new.fp := public.client_fp();
   new.created_at := now();
-  execute format('select count(*) from public.%I where fp = $1 and created_at > now() - interval ''1 hour''', tg_table_name)
-    into n using new.fp;
-  if n >= 5 and not public.is_admin() then
+  perform pg_advisory_xact_lock(hashtext('guard_' || tg_table_name));
+  execute format('select count(*) filter (where fp = $1), count(*) from public.%I where created_at > now() - interval ''1 hour''', tg_table_name)
+    into n, total using new.fp;
+  if (n >= 5 or total >= 100) and not public.is_admin() then
     raise exception 'Te veel inzendingen, probeer het later opnieuw' using errcode = 'P0001';
   end if;
   if tg_table_name = 'reviews' then
@@ -54,6 +65,8 @@ begin
     new.status := 'nieuw'; new.note := null; new.handled_at := null;
   elsif tg_table_name = 'subscribers' then
     new.email := lower(btrim(new.email)); new.status := 'actief'; new.unsubscribed_at := null;
+    -- bestaat het adres al, dan stil overslaan: zo verraadt de site niet wie er ingeschreven staat
+    if exists (select 1 from public.subscribers s where lower(s.email) = new.email) then return null; end if;
   end if;
   return new;
 end $$;
@@ -116,6 +129,9 @@ create table if not exists public.subscribers (
   fp text
 );
 create unique index if not exists subscribers_email_key on public.subscribers (lower(email));
+create index if not exists reviews_created_idx on public.reviews (created_at);
+create index if not exists messages_created_idx on public.messages (created_at);
+create index if not exists subscribers_created_idx on public.subscribers (created_at);
 
 -- ---------- triggers ----------
 drop trigger if exists reviews_guard on public.reviews;
@@ -157,10 +173,11 @@ begin
 end $$;
 
 -- ---------- openbaar: goedgekeurde reviews per adres, zonder e-mailadres ----------
-create or replace function public.approved_reviews(p_loc text)
-returns table (name text, visit_month text, score_e smallint, score_s smallint, score_p smallint, body text, created_at timestamptz)
-language sql stable security definer set search_path = public as $$
-  select btrim(r.name), r.visit_month, r.score_e, r.score_s, r.score_p, r.body, r.created_at
+drop function if exists public.approved_reviews(text);
+create function public.approved_reviews(p_loc text)
+returns table (name text, visit_month text, score_e smallint, score_s smallint, score_p smallint, body text)
+language sql stable security definer set search_path = '' as $$
+  select btrim(r.name), r.visit_month, r.score_e, r.score_s, r.score_p, r.body
   from public.reviews r
   where r.status = 'goedgekeurd' and r.loc_id = p_loc
   order by r.created_at desc
@@ -168,6 +185,19 @@ language sql stable security definer set search_path = public as $$
 $$;
 revoke all on function public.approved_reviews(text) from public;
 grant execute on function public.approved_reviews(text) to anon, authenticated;
+
+-- ---------- bewaartermijnen, elk uur ----------
+create extension if not exists pg_cron;
+create or replace function private.opruimen() returns void language sql set search_path = '' as $$
+  update public.reviews set fp = null where fp is not null and created_at < now() - interval '2 hours';
+  update public.messages set fp = null where fp is not null and created_at < now() - interval '2 hours';
+  update public.subscribers set fp = null where fp is not null and created_at < now() - interval '2 hours';
+  delete from public.messages where created_at < now() - interval '2 years';
+  update public.reviews set email = null where email is not null and created_at < now() - interval '1 year';
+  delete from public.reviews where status = 'afgewezen' and created_at < now() - interval '1 year';
+  delete from public.subscribers where status = 'afgemeld' and unsubscribed_at < now() - interval '30 days';
+$$;
+select cron.schedule('dineren-opruimen', '7 * * * *', 'select private.opruimen()');
 
 -- ---------- beheerder ----------
 -- Vervang het adres als je met een ander e-mailadres inlogt.
