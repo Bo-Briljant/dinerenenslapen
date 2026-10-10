@@ -27,7 +27,7 @@ var hd2=document.createElement('div');hd2.className='rvh';var nm=document.create
 if(r.visit_month){var mo=document.createElement('span');var p=r.visit_month.split('-');mo.textContent=K[3]+' '+M[+p[1]-1]+' '+p[0];hd2.appendChild(mo)}
 var sc=document.createElement('div');sc.className='rvs';sc.textContent=K[0]+' '+r.score_e+' · '+K[1]+' '+r.score_s+' · '+K[2]+' '+r.score_p;
 var tx=document.createElement('p');tx.textContent=r.body;ar.appendChild(hd2);ar.appendChild(sc);ar.appendChild(tx);list.appendChild(ar)});
-var c=box.querySelector('.rvcount');c.hidden=false;c.textContent=(L==='en'?a.length+(a.length===1?' review from readers, average ':' reviews from readers, average '):a.length+(a.length===1?' review van lezers, gemiddeld ':' reviews van lezers, gemiddeld '))+n1(sum/a.length)})})})();;
+var c=box.querySelector('.rvcount');c.hidden=false;c.textContent=(L==='en'?a.length+(a.length===1?' review from readers, average ':' reviews from readers, average '):a.length+(a.length===1?' review van lezers, gemiddeld ':' reviews van lezers, gemiddeld '))+n1(sum/a.length)}).catch(function(){})})})();;
 (function(){
 var bk=document.getElementById('boek');if(!bk)return;
 var svg=bk.querySelector('.bmap svg'),mv=svg.querySelector('.mv'),tip=bk.querySelector('.tip'),panes=bk.querySelectorAll('.pane'),cur=null;
