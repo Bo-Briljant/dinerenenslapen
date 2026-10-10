@@ -51,7 +51,7 @@ def book_home_pane(lang):
             '<nav class="tocg" aria-label="%s">%s</nav>'
             '<a class="pl" href="#adressen">%s %s</a></div>') % (
         'Inhoud' if nl else 'Contents', 'Editie 2026' if nl else '2026 edition',
-        'Dineren en blijven slapen op de mooiste adressen van Nederland' if nl else 'Dine and stay the night at the finest addresses in the Netherlands', esc(lead),
+        'Dineren en blijven slapen: de mooiste restaurants met overnachting' if nl else 'Dine and stay the night: the finest restaurants with rooms', esc(lead),
         pic(D['img']['omslag'], 'Illustratie van een gedekte tafel bij een raam met uitzicht op een landgoed' if nl else 'Illustration of a laid table by a window overlooking an estate', '150px', lazy=False, prio=True, cls='cover', widths=(480,)),
         'Inhoud' if nl else 'Contents', toc, 'Zoek op budget of op afstand van huis' if nl else 'Search by budget or distance from home', ARW_D)
 

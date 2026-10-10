@@ -120,21 +120,21 @@ def build_contact():
          '<button class="btn" type="submit" style="justify-self:start">Verstuur je bericht</button><p class="formnote">We gebruiken je gegevens alleen om je te antwoorden. Lees de <a href="/privacy/">privacyverklaring</a>.</p></form>%s'
          '<p class="thanks" role="status">Dank je, je bericht is binnen. We antwoorden meestal binnen een paar dagen.</p></div>'
          '<p class="meta">Een adres tippen? Dat kan via <a href="/zo-kiezen-wij/#tip">het tipformulier</a>. Liever mailen? <a href="mailto:%s">%s</a>.</p></div></section>') % (crumbs(items, light=True), HONEY, subj, ferr(), MAIL, MAIL)
-    page('/contact/', 'nl', 'Contact | Dineren en Slapen', 'Een vraag over een adres, een fout op de site of samenwerken? Stuur Dineren en Slapen een bericht. We antwoorden meestal binnen een paar dagen.', h, '', None, [ld_crumbs(items), {'@type': 'ContactPage', 'url': SITE + '/contact/', 'name': 'Contact'}], prio=0.3)
+    page('/contact/', 'nl', 'Contact: een vraag, tip of fout melden | Dineren en Slapen', 'Een vraag over een adres, een fout op de site of samenwerken? Stuur Dineren en Slapen een bericht. We antwoorden meestal binnen een paar dagen.', h, '', None, [ld_crumbs(items), {'@type': 'ContactPage', 'url': SITE + '/contact/', 'name': 'Contact'}], prio=0.3)
 
 def build_privacy():
     items = [('Home', '/'), ('Privacy', None)]
     h = ('<section class="sec"><div class="narrow prose stack">%s<h1 style="font-size:clamp(36px,6vw,54px)">Privacy</h1>'
          '<p>Deze site gebruikt geen tracking-cookies, geen advertentienetwerken en geen analysediensten.</p>'
          '<h2>Wat we bewaren</h2><ul>'
-         '<li><strong>Nieuwsbrief.</strong> Je e-mailadres, de pagina waar je je inschreef en de datum. Alleen om je de nieuwsbrief te sturen. Afmelden kan altijd.</li>'
+         '<li><strong>Nieuwsbrief.</strong> Je e-mailadres, je voorkeursprovincie, de pagina waar je je inschreef en de datum. Alleen om je de nieuwsbrief te sturen. Afmelden kan altijd.</li>'
          '<li><strong>Tips en contactberichten.</strong> Wat je invult, zodat we kunnen kijken en antwoorden.</li>'
          '<li><strong>Reviews.</strong> Je voornaam, je bezoekmaand, je cijfers en je tekst. Na goedkeuring staan je voornaam, maand, cijfers en tekst op de site. Je e-mailadres, als je het invult, komt nooit op de site.</li>'
          '<li><strong>Bescherming tegen spam.</strong> Bij elke inzending bewaren we een versleutelde code die van je IP-adres is afgeleid, zodat we massaal versturen kunnen tegenhouden. Die code wissen we na twee uur. Je IP-adres zelf bewaren we niet; onze databaseleverancier houdt IP-adressen kort bij in technische logboeken.</li></ul>'
          '<h2>Hoe lang</h2><ul><li>Berichten en tips: hooguit twee jaar.</li><li>Reviews: zolang ze op de site staan. Je e-mailadres bij een review wissen we na een jaar, afgewezen reviews na een jaar.</li><li>Nieuwsbrief: tot je je afmeldt. Na afmelden wissen we je adres binnen dertig dagen.</li></ul>'
          '<h2>Waar het staat</h2><p>De gegevens staan in een beveiligde database van Supabase, op servers in Frankfurt (EU). Alleen wij kunnen erbij, met een eigen inlog. We verkopen niets en geven niets door.</p>'
          '<h2>Inzien of verwijderen</h2><p>Wil je weten wat we van je hebben, of wil je dat we het verwijderen? Mail ons op <a href="mailto:%s">%s</a>. We regelen het binnen een maand.</p></div></section>') % (crumbs(items, light=True), MAIL, MAIL)
-    page('/privacy/', 'nl', 'Privacy | Dineren en Slapen', 'Geen tracking en geen advertenties. Wat we bewaren als je je inschrijft, een tip of review stuurt of contact opneemt, en waar het staat.', h, '', None, [ld_crumbs(items)], prio=0.1)
+    page('/privacy/', 'nl', 'Privacy: wat we bewaren en waarom | Dineren en Slapen', 'Geen tracking en geen advertenties. Wat we bewaren als je je inschrijft, een tip of review stuurt of contact opneemt, en waar het staat.', h, '', None, [ld_crumbs(items)], prio=0.1)
 
 def write_admin():
     src = os.path.join(HERE, 'admin'); dst = os.path.join(OUT, 'admin')

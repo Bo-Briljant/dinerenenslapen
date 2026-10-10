@@ -28,6 +28,8 @@ for _l in LOCS:
 # uitgebreide adresteksten: onze beoordeling, secties en veelgestelde vragen
 _cnt = os.path.join(HERE, 'data', 'content.json')
 CONTENT = json.load(open(_cnt)) if os.path.exists(_cnt) else {}
+_pg = os.path.join(HERE, 'data', 'provguide.json')
+PROVGUIDE = json.load(open(_pg)) if os.path.exists(_pg) else {}
 for _l in LOCS:
     if _l['id'] in CONTENT: _l.update({k: v for k, v in CONTENT[_l['id']].items() if k in ('meta', 'tag', 'kort', 'rev', 'secs', 'faq', 'let')})
 SECNAV = {'eten': ('Dineren', 'Dining'), 'slapen': ('Overnachten', 'Staying'), 'pand': ('Het pand', 'The building'), 'omgeving': ('Ligging en omgeving', 'Location and surroundings'), 'voorwie': ('Voor wie', 'Who it suits')}
@@ -266,10 +268,10 @@ def chips(l, lang, n=4):
 # ---------- layout ----------
 T = {
  'nl': {'sub': 'Het boek van dineren en slapen', 'provs': 'Provincies', 'top': 'Top 10', 'blog': 'Verhalen', 'keur': 'Zo kiezen wij', 'net': 'Net niet', 'skip': 'Naar de inhoud', 'home': 'Home',
-        'ourscore': 'ons cijfer', 'read': 'Lees ons verslag', 'site': 'Website', 'perprov': 'Per provincie', 'lists': 'Lijsten', 'about': 'Over dit boek', 'credits': 'Beeldverantwoording', 'privacy': 'Privacy',
+        'ourscore': 'ons cijfer', 'read': 'Lees onze beoordeling', 'site': 'Website', 'perprov': 'Per provincie', 'lists': 'Lijsten', 'about': 'Over dit boek', 'credits': 'Beeldverantwoording', 'privacy': 'Privacy',
         'nlText': 'Ons dagboek van avonden aan tafel en de nachten erna. Voor wie na het dessert niet meer naar huis wil.', 'nlBtn': 'Inschrijven', 'nlLabel': 'Maandelijkse nieuwsbrief', 'ph': 'naam@voorbeeld.nl', 'tip': 'Tip ons een adres'},
  'en': {'sub': 'The book of dining and sleeping', 'provs': 'Provinces', 'top': 'Top 10', 'blog': 'Stories', 'keur': 'How we choose', 'net': 'Not quite', 'skip': 'Skip to content', 'home': 'Home',
-        'ourscore': 'our score', 'read': 'Read our review', 'site': 'Website', 'perprov': 'By province', 'lists': 'Lists', 'about': 'About this book', 'credits': 'Image credits', 'privacy': 'Privacy',
+        'ourscore': 'our score', 'read': 'Read our verdict', 'site': 'Website', 'perprov': 'By province', 'lists': 'Lists', 'about': 'About this book', 'credits': 'Image credits', 'privacy': 'Privacy',
         'nlText': 'Our diary of evenings at the table and the nights that follow. For those who would rather not drive home after dessert.', 'nlBtn': 'Subscribe', 'nlLabel': 'Monthly newsletter (in Dutch)', 'ph': 'name@example.com', 'tip': 'Suggest an address'},
 }
 PAGES = []   # (path, lang, alternates, priority, lastmod)
@@ -328,6 +330,8 @@ def page(path, lang, title, desc, body, active='', alt=None, ld=None, og=None, p
     if len(alt) > 1 or lang == 'en':
         for lg, u in alt.items(): links += '<link rel="alternate" hreflang="%s" href="%s%s">' % (lg, SITE, u)
         if 'nl' in alt: links += '<link rel="alternate" hreflang="x-default" href="%s%s">' % (SITE, alt['nl'])
+    for g in (ld or []):
+        if isinstance(g, dict) and g.get('@type') == 'BreadcrumbList' and g.get('itemListElement'): g['itemListElement'][-1]['item'] = SITE + path
     graph = [ORG, {'@type': 'WebSite', '@id': SITE + '/#site', 'url': SITE + '/', 'name': 'Dineren en Slapen', 'inLanguage': 'nl-NL', 'publisher': {'@id': SITE + '/#org'}}] + (ld or [])
     ogimg = og or SITE + '/og.jpg'
     if 'share_strip' in globals() and not noindex and prio >= 0.4 and path not in ('/', '/en/'): body = body + share_strip(path, title, lang, ogimg)
@@ -343,6 +347,7 @@ def page(path, lang, title, desc, body, active='', alt=None, ld=None, og=None, p
         esc(title), esc(desc), SITE, path, esc(ogimg), CSS, json.dumps({'@context': 'https://schema.org', '@graph': graph}, ensure_ascii=False).replace('</', '<\\/'),
         header(lang, active, alt), body, footer(lang), JS + extra_js)
     if 'nb_preselect' in globals(): doc = nb_preselect(doc, path)
+    if 'seo_post' in globals(): doc = seo_post(doc)
     fp = os.path.join(OUT, path.lstrip('/'), 'index.html') if path.endswith('/') else os.path.join(OUT, path.lstrip('/'))
     os.makedirs(os.path.dirname(fp), exist_ok=True)
     open(fp, 'w').write(doc)
@@ -434,6 +439,20 @@ def build_prov(P, lang):
     extra += '<div class="stack"><p class="k">%s</p><div class="minis">%s</div></div>' % ('Verder bladeren' if nl else 'Keep browsing', ''.join(
         '<a class="mini" href="%s">%s<span><b>%s</b><span>%s</span></span></a>' % (u_prov(q['id'], lang), pic(q['thumb'], '', '76px', widths=(480,)), esc(('Restaurant met overnachting in ' if nl else 'Dine and stay in ') + pname(q, lang)), lab) for q, lab in ((prv, 'Vorig hoofdstuk' if nl else 'Previous chapter'), (nxt, 'Volgend hoofdstuk' if nl else 'Next chapter'))))
     h += '<section class="sec alt"><div class="wrap" style="display:grid;gap:48px">%s</div></section>' % extra
+    _g = PROVGUIDE.get(P['id'], {}).get(lang)
+    if _g:
+        gh = ''
+        for para in _g.split('\n\n'):
+            t = esc(para)
+            ALIAS = {'prinsenhof-groningen': 'Prinsenhof', 'rikus-eext': 'Rikus', 'posten-nordic-cuisine': 'POSTEN', 'de-librije-zwolle': 'De Librije',
+                     'de-l-europe-amsterdam': "De L'Europe", 'the-dylan-amsterdam': 'The Dylan', 'weeshuis-gouda': 'Weeshuis', 'kasteel-gemert-restaurant-gem': 'Kasteel Gemert'}
+            for l in ls:
+                if ('href="%s"' % u_loc(l, lang)) in gh: continue
+                for n0 in (esc(l['name']), esc(ALIAS.get(l['id'], l['name']))):
+                    if n0 in t: t = t.replace(n0, '<a href="%s">%s</a>' % (u_loc(l, lang), n0), 1); break
+            gh += '<p>%s</p>' % t
+        h += ('<section class="sec white" id="gids"><div class="narrow prose stack"><p class="k">%s</p><h2>%s</h2>%s</div></section>') % (
+            'Gids' if nl else 'Guide', ('Dineren en slapen in %s: waar en wanneer' if nl else 'Dining and staying in %s: where and when') % pn, gh)
     h += '<section class="sec white"><div class="narrow">%s</div></section>' % faq_html(faq, title=('Veelgestelde vragen over dineren en slapen in ' if nl else 'Questions about dining and staying in ') + pn)
     t1 = ('Restaurant met overnachting %s: onze adressen (2026)' if nl else 'Restaurants with rooms in %s (2026)') % pn
     if len(t1) > 60: t1 = ('Restaurant met overnachting %s (2026)' if nl else 'Restaurants with rooms, %s (2026)') % pn
@@ -448,10 +467,10 @@ def build_loc(l, lang):
     items = [(T[lang]['home'], u_home(lang)), (pn, u_prov(P['id'], lang)), (l['name'], None)]
     cred = ('<figcaption>%s%s</figcaption>' % ('<a href="%s" rel="nofollow noopener" target="_blank">%s</a>' % (esc(l['credu']), esc(l['cred'])) if l.get('credu') else esc(l.get('cred') or ''), (' · <a href="%s" rel="license nofollow noopener" target="_blank">%s</a>' % (esc(l['licu']), esc(l['lic']))) if l.get('licu') and l.get('lic') and l['lic'] not in l['cred'] else '')) if l.get('cred') else ('<figcaption>%s</figcaption>' % ('Illustratie' if nl else 'Illustration') if l.get('ill') else '')
     host = l.get('host') or re.sub(r'^https?://(www\.)?', '', l['web']).strip('/')
-    h = ('<section class="dark hero"><div class="wrap">%s<div class="grid" style="margin-top:22px"><div class="txt"><p class="k">%s</p><h1>%s</h1><p class="meta" style="color:#C9CFC4">%s · %s · %s %d</p>%s<p class="sub">%s</p>'
+    h = ('<section class="dark hero"><div class="wrap">%s<div class="grid" style="margin-top:22px"><div class="txt"><p class="k">%s</p><h1>%s <span class="h1s">%s</span></h1><p class="meta" style="color:#C9CFC4">%s · %s %d</p>%s<p class="sub">%s</p>'
          '<p class="links"><a class="btn" href="%s" rel="noopener" target="_blank">%s</a><a href="#verslag">%s</a></p></div><figure style="flex:1 1 460px">%s%s</figure></div></div></section>') % (
-        crumbs(items), esc(l['type'][lang]), esc(l['name']), esc(l['place']), esc(pn), ('nummer' if nl else 'number'), RANK[l['id']], chips(l, lang, 6), esc(l['tag'][lang]),
-        esc(l['web']), ('Naar ' if nl else 'Visit ') + esc(host), 'Lees ons verslag' if nl else 'Read our review',
+        crumbs(items), esc(l['type'][lang]), esc(l['name']), ('diner met overnachting in %s' if nl else 'restaurant with rooms in %s') % esc(l['place']), esc(pn), ('nummer' if nl else 'number'), RANK[l['id']], chips(l, lang, 6), esc(l['tag'][lang]),
+        esc(l['web']), ('Naar ' if nl else 'Visit ') + esc(host), 'Lees onze beoordeling' if nl else 'Read our verdict',
         pic(l['img'], l['name'] + ', ' + l['place'], '(max-width: 760px) 100vw, 640px', lazy=False, prio=True, cls='framed'), cred)
     def paras_of(t): return ''.join('<p>%s</p>' % esc(p) for p in t.split('\n\n') if p.strip())
     secs = l.get('secs') or []
@@ -500,7 +519,9 @@ def build_loc(l, lang):
             if RANK[l['id']] <= 10: li = '<li><a href="/top-10/">Top 10 dineren en slapen: nummer %d</a></li>' % RANK[l['id']] + li
             ex += '<div class="stack"><p class="k">Lijsten</p><h2>Staat ook in</h2><ul style="margin:0;padding-left:20px;display:grid;gap:6px;font:500 16px var(--sans)">%s</ul></div>' % li
     h += '<section class="sec alt"><div class="wrap" style="display:grid;gap:48px">%s</div></section>' % ex
-    title = ('%s, %s: diner met overnachting' if nl else '%s, %s: dine and stay') % (l['name'], l['place'])
+    title = ('%s, %s: diner met overnachting' if nl else '%s, %s: restaurant with rooms') % (l['name'], l['place'])
+    if len(title) > 60: title = ('%s: diner met overnachting' if nl else '%s: restaurant with rooms') % l['name']
+    if len(title) > 60: title = ('%s, %s: diner met overnachting' if nl else '%s, %s: dine and stay') % (l['name'], l['place'])
     if len(title) > 60: title = ('%s: diner met overnachting' if nl else '%s: dine and stay') % l['name']
     if len(title) > 60: title = l['name']
     tag = l['tag'][lang].rstrip('.:')
@@ -549,7 +570,7 @@ def build_theme(th):
     rows = ''
     for i, l in enumerate(ls):
         rows += ('<article class="row"><div class="n">%d</div><div class="in"><a class="ph" href="%s">%s</a><div style="display:grid;gap:10px;align-content:start"><p class="k">%s</p><div class="hd"><h2><a href="%s" style="color:inherit;text-decoration:none">%s</a></h2><span class="score"><b>%s</b><small>ons cijfer</small></span></div>'
-                 '<p class="meta">%s · <a href="%s">%s</a> · %s</p>%s<p>%s</p><p class="links"><a class="btn" href="%s">Lees ons verslag</a></p></div></div></article>') % (
+                 '<p class="meta">%s · <a href="%s">%s</a> · %s</p>%s<p>%s</p><p class="links"><a class="btn" href="%s">Lees onze beoordeling</a></p></div></div></article>') % (
             i + 1, u_loc(l, 'nl'), pic(l['img'], l['name'], '(max-width: 760px) 100vw, 520px', lazy=i > 0, prio=i == 0), esc(l['type']['nl']), u_loc(l, 'nl'), esc(l['name']), num(total(l)),
             esc(l['place']), u_prov(l['prov'], 'nl'), esc(PBY[l['prov']]['name']), p2(l, 'nl'), chips(l, 'nl'), esc(l['kort']['nl']), u_loc(l, 'nl'))
     others = ''.join('<a class="mini" href="/%s/">%s<span><b>%s</b><span>%d adressen</span></span></a>' % (o['slug'], pic(o['locs'][0].get('th') or o['locs'][0]['img'], '', '76px', widths=(480,)), esc(o['nav']), len(o['locs'])) for o in THEMES if o is not th)
@@ -677,8 +698,16 @@ def write_static():
     for path, lang, alt, prio in PAGES:
         al = ''.join('<xhtml:link rel="alternate" hreflang="%s" href="%s%s"/>' % (lg, SITE, u) for lg, u in alt.items()) if len(alt) > 1 else ''
         if len(alt) > 1 and 'nl' in alt: al += '<xhtml:link rel="alternate" hreflang="x-default" href="%s%s"/>' % (SITE, alt['nl'])
-        urls.append('<url><loc>%s%s</loc><lastmod>%s</lastmod><priority>%.1f</priority>%s</url>' % (SITE, path, TODAY, prio, al))
-    open(os.path.join(OUT, 'sitemap.xml'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n' + '\n'.join(urls) + '\n</urlset>\n')
+        fp = os.path.join(OUT, path.lstrip('/'), 'index.html') if path.endswith('/') else os.path.join(OUT, path.lstrip('/'))
+        ims = []
+        try:
+            hh = open(fp).read(); mm = hh[hh.find('<main'):hh.find('</main>')]
+            for u in re.findall(r'<img src="(/img/[^"]+)"', mm):
+                if u not in ims: ims.append(u)
+        except OSError: pass
+        im = ''.join('<image:image><image:loc>%s%s</image:loc></image:image>' % (SITE, u) for u in ims[:10])
+        urls.append('<url><loc>%s%s</loc><lastmod>%s</lastmod><priority>%.1f</priority>%s%s</url>' % (SITE, path, TODAY, prio, al, im))
+    open(os.path.join(OUT, 'sitemap.xml'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n' + '\n'.join(urls) + '\n</urlset>\n')
     open(os.path.join(OUT, 'robots.txt'), 'w').write('User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: %s/sitemap.xml\n' % SITE)
     # llms.txt
     L = ['# Dineren en Slapen', '', '> Onafhankelijke Nederlandse gids van restaurants met overnachting: adressen waar je dineert en blijft slapen onder één dak. %d adressen in twaalf provincies, met eigen cijfers voor eten, slapen en prijs, en een prijs voor twee (diner, een nacht en ontbijt, gecheckt in hun eigen boekingssysteem voor een doordeweekse nacht in november 2026).' % len(LOCS), '',
@@ -719,6 +748,7 @@ def write_static():
 
 exec(open(os.path.join(HERE, 'forms.py')).read())
 exec(open(os.path.join(HERE, 'social.py')).read())
+exec(open(os.path.join(HERE, 'seo.py')).read())
 
 def main():
     keep_img = os.path.join(OUT, 'img')
