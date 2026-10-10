@@ -24,16 +24,16 @@ def book_map(lang):
     paths, labels, dots = '', '', ''
     for p in PROV_ORDER:
         pn = pname(p, lang)
-        paths += '<a href="%s" class="pv" data-p="%s" aria-label="%s"><path d="%s"/></a>' % (u_prov(p['id'], lang), p['id'], esc(('Hoofdstuk %s: %s' if nl else 'Chapter %s: %s') % (p['ch'], pn)), p['d'])
-        labels += '<text class="lb" x="%s" y="%s" text-anchor="middle">%s</text>' % (p['lx'], p['ly'], esc(pn.upper()))
+        paths += '<a href="%s" class="pv" data-p="%s" tabindex="-1" aria-label="%s"><path d="%s"/></a>' % (u_prov(p['id'], lang), p['id'], esc(('Hoofdstuk %s: %s' if nl else 'Chapter %s: %s') % (p['ch'], pn)), p['d'])
+        labels += '<text class="lb" x="%s" y="%s" text-anchor="middle">%s</text>' % (p['lx'], p['ly'] + (16 if p['id'] == 'utrecht' else 0), esc(pn.upper()))
     for l in sorted(LOCS, key=lambda x: -RANK[x['id']]):   # beste bovenop
         r = prank(l)
-        dots += ('<a href="%s" class="dt%s" data-l="%s" data-p="%s" data-x="%.1f" data-y="%.1f" aria-label="%s"><circle cx="%.1f" cy="%.1f" r="4.6"/>'
+        dots += ('<a href="%s" class="dt%s" tabindex="-1" data-l="%s" data-p="%s" data-x="%.1f" data-y="%.1f" aria-label="%s"><circle cx="%.1f" cy="%.1f" r="4.6"/>'
                  '<text class="dn" x="%.1f" y="%.1f" text-anchor="middle" dominant-baseline="central">%d</text></a>') % (
             u_loc(l, lang), ' best' if r == 1 else '', l['id'], l['prov'], l['x'], l['y'],
             esc('%s, %s%s' % (l['name'], l['place'], (', beste van ' + pname(PBY[l['prov']], lang)) if r == 1 and nl else (', best in ' + pname(PBY[l['prov']], lang) if r == 1 else ''))),
             l['x'], l['y'], l['x'], l['y'], r)
-    return ('<div class="bmap" id="kaart"><svg viewBox="0 0 600 700" role="img" aria-label="%s"><g class="mv">%s<g class="lbs">%s</g>%s</g></svg>'
+    return ('<div class="bmap" id="kaart"><svg viewBox="0 0 600 700" role="group" aria-label="%s"><g class="mv">%s<g class="lbs">%s</g>%s</g></svg>'
             '<div class="tip" aria-hidden="true"></div></div>') % (
         'Kaart van Nederland met de twaalf provincies en alle adressen' if nl else 'Map of the Netherlands with the twelve provinces and every address', paths, labels, dots)
 
@@ -66,7 +66,7 @@ def book_prov_pane(P, lang):
         rows += ('<div class="brow open"><span class="th"><b class="rk">%d</b></span><span class="bd"><span class="rn">%s %d</span><span class="meta">%s <a href="/zo-kiezen-wij/#tip">%s</a></span></span></div>') % (
             len(ls) + 1, 'Plek' if nl else 'Place', len(ls) + 1, 'We zijn dit nog aan het testen.' if nl else 'We are still testing this one.', 'Tip ons een adres' if nl else 'Suggest an address')
     return ('<div class="pane" data-pane="%s" hidden><div class="phd"><button type="button" class="back" data-home>%s%s</button><span class="k">%s %s</span></div>'
-            '%s<h2>%s</h2><p class="pi">%s</p><div class="rows">%s</div>'
+            '%s<h2 tabindex="-1">%s</h2><p class="pi">%s</p><div class="rows">%s</div>'
             '<div class="links2"><a class="pl" href="#adressen" data-scope="%s">%s %s</a><a class="pl" href="%s">%s %s</a></div></div>') % (
         P['id'], ARW_L, 'Inhoud' if nl else 'Contents', 'Hoofdstuk' if nl else 'Chapter', P['ch'],
         pic(P['plate'], ('Illustratie bij het hoofdstuk ' if nl else 'Illustration for the chapter ') + pn, '(max-width: 760px) 100vw, 560px', cls='plate', widths=(480, 960)),
@@ -126,7 +126,7 @@ def explorer(lang):
         'Je ziet eerst onze eigen ranglijst, op basis van onze cijfers voor eten, slapen en prijs. Liever op prijs van laag naar hoog, of op afstand vanaf huis? Dat kan ook. Aan onze cijfers verandert daardoor niets.' if nl else
         'You first see our own ranking, based on our scores for food, stay and price. Prefer price from low to high, or distance from home? That works too. It does not change our scores.',
         'Budget voor twee' if nl else 'Budget for two', budget, 'Erkenning en karakter' if nl else 'Recognition and character', labs,
-        'Afstand vanaf jouw adres' if nl else 'Distance from your address', 'Postcode of woonplaats' if nl else 'Postcode or town', 'Toon afstand' if nl else 'Show distance',
+        'Afstand vanaf jouw adres' if nl else 'Distance from your address', 'Postcode of plaats' if nl else 'Postcode or town', 'Toon afstand' if nl else 'Show distance',
         'Of gebruik mijn huidige locatie' if nl else 'Or use my current location',
         'Vul je postcode of woonplaats in en zie bij elk adres hoe ver het is.' if nl else 'Enter your postcode or town and see how far each address is.',
         'Dat adres vinden we niet. Probeer een postcode (bijvoorbeeld 9711 NR) of een plaatsnaam.' if nl else 'We cannot find that address. Try a Dutch postcode (for example 9711 NR) or a town.',
@@ -173,7 +173,7 @@ HOME_JS = r""";
 var bk=document.getElementById('boek');if(!bk)return;
 var svg=bk.querySelector('.bmap svg'),mv=svg.querySelector('.mv'),tip=bk.querySelector('.tip'),panes=bk.querySelectorAll('.pane'),cur=null;
 var BB=%BB%,PN=%PN%,NL=document.documentElement.lang==='nl';
-var dots=[].slice.call(svg.querySelectorAll('.dt'));
+var dots=[].slice.call(svg.querySelectorAll('.dt')),COARSE=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
 function zoomOf(id){var b=BB[id],pad=30,s=Math.min(600/(b[2]-b[0]+2*pad),700/(b[3]-b[1]+2*pad),4.4);return{s:s,tx:300-s*(b[0]+b[2])/2,ty:350-s*(b[1]+b[3])/2}}
 function place(z,id){
  var pos={},ids=[];
@@ -182,11 +182,11 @@ function place(z,id){
  for(var it=0;it<16;it++)for(var i=0;i<ids.length;i++)for(var j=i+1;j<ids.length;j++){var a=pos[ids[i]],c=pos[ids[j]],dx=c[0]-a[0],dy=c[1]-a[1],dd=Math.sqrt(dx*dx+dy*dy);if(dd<minD){if(dd<.01){dx=1;dy=.35;dd=1.06}var p=(minD-dd)/2,ux=dx/dd,uy=dy/dd;a[0]-=ux*p;a[1]-=uy*p;c[0]+=ux*p;c[1]+=uy*p}}
  dots.forEach(function(d){var q=pos[d.dataset.l],x=(q[0]-z.tx)/z.s,y=(q[1]-z.ty)/z.s,inP=id&&d.dataset.p===id,c=d.querySelector('circle'),t=d.querySelector('text');
   c.setAttribute('cx',x.toFixed(2));c.setAttribute('cy',y.toFixed(2));t.setAttribute('x',x.toFixed(2));t.setAttribute('y',y.toFixed(2));
-  c.setAttribute('r',((inP?13:(id?3:4.6))/z.s).toFixed(2));t.style.fontSize=(12.5/z.s).toFixed(2)+'px';
-  d.classList.toggle('in',!!inP);d.classList.toggle('out',!!id&&!inP);d.setAttribute('tabindex',id&&!inP?'-1':'0')});
+  c.setAttribute('r',((inP?(COARSE?17:13):(id?3:4.6))/z.s).toFixed(2));t.style.fontSize=(12.5/z.s).toFixed(2)+'px';
+  d.classList.toggle('in',!!inP);d.classList.toggle('out',!!id&&!inP);d.setAttribute('tabindex',inP?'0':'-1')});
 }
-function open(id,push){
- cur=id||null;var z=id?zoomOf(id):{s:1,tx:0,ty:0};
+function open(id,push,from){
+ var prev=cur;cur=id||null;var z=id?zoomOf(id):{s:1,tx:0,ty:0};
  mv.style.transform='translate('+z.tx.toFixed(2)+'px,'+z.ty.toFixed(2)+'px) scale('+z.s.toFixed(4)+')';
  bk.classList.toggle('zoomed',!!id);
  svg.querySelectorAll('.pv').forEach(function(a){a.classList.toggle('sel',a.dataset.p===id)});
@@ -197,18 +197,22 @@ function open(id,push){
  var n=id?4+(PN[id][2]-1)*14:2;document.getElementById('pgl').textContent=n;document.getElementById('pgr').textContent=n+1;
  if(push!==false)try{history.replaceState(null,'',id?'#'+id:location.pathname)}catch(e){}
  document.dispatchEvent(new CustomEvent('des:prov',{detail:id}));
- if(id&&push!==false){var r=bk.querySelector('.pgr').getBoundingClientRect();if(r.top>window.innerHeight*.6)bk.querySelector('.pgr').scrollIntoView({behavior:'smooth',block:'start'})}
+ var pr=bk.querySelector('.pgr'),stacked=pr.getBoundingClientRect().left<bk.getBoundingClientRect().left+60;
+ if(id&&from==='toc'&&stacked)pr.scrollIntoView({behavior:'smooth',block:'start'});
+ if(from){var f=id?bk.querySelector('.pane.on h2'):(prev?bk.querySelector('.toc2[data-p="'+prev+'"]'):null);if(f)f.focus({preventScroll:from!=='toc'||!stacked})}
 }
 bk.addEventListener('click',function(e){
- var a=e.target.closest('[data-home]');if(a){e.preventDefault();open(null);return}
- a=e.target.closest('.pv,.toc2');if(a){if(cur===a.dataset.p&&a.classList.contains('pv'))return;e.preventDefault();open(a.dataset.p);return}
+ if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button)return;
+ var a=e.target.closest('[data-home]');if(a){e.preventDefault();open(null,true,'back');return}
+ a=e.target.closest('.pv,.toc2');if(a){if(cur===a.dataset.p&&a.classList.contains('pv'))return;e.preventDefault();open(a.dataset.p,true,a.classList.contains('toc2')?'toc':'map');return}
 });
-document.querySelectorAll('.pcard').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();open(a.dataset.p,false);try{history.replaceState(null,'','#'+a.dataset.p)}catch(x){}bk.scrollIntoView({behavior:'smooth',block:'start'})})});
+document.querySelectorAll('.pcard').forEach(function(a){a.addEventListener('click',function(e){if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button)return;e.preventDefault();open(a.dataset.p,false);try{history.replaceState(null,'','#'+a.dataset.p)}catch(x){}bk.scrollIntoView({behavior:'smooth',block:'start'})})});
 function showTip(d){var r=d.querySelector('circle').getBoundingClientRect(),b=bk.querySelector('.bmap').getBoundingClientRect();tip.textContent=d.getAttribute('aria-label').split(',')[0];tip.style.top=(r.top-b.top+r.height/2)+'px';var x=r.right-b.left+8;if(x+tip.offsetWidth>b.width-4)x=r.left-b.left-8-tip.offsetWidth;tip.style.left=Math.max(2,x)+'px';tip.classList.add('on')}
 dots.forEach(function(d){d.addEventListener('mouseenter',function(){showTip(d)});d.addEventListener('focus',function(){showTip(d)});d.addEventListener('mouseleave',function(){tip.classList.remove('on')});d.addEventListener('blur',function(){tip.classList.remove('on')})});
 bk.querySelectorAll('.brow[data-l]').forEach(function(r){var d=svg.querySelector('.dt[data-l="'+r.dataset.l+'"]');r.addEventListener('mouseenter',function(){d.classList.add('hot');showTip(d)});r.addEventListener('mouseleave',function(){d.classList.remove('hot');tip.classList.remove('on')})});
 var h=location.hash.slice(1);if(BB[h])open(h,false);else place({s:1,tx:0,ty:0},null);
 window.addEventListener('resize',function(){place(cur?zoomOf(cur):{s:1,tx:0,ty:0},cur)});
+window.addEventListener('hashchange',function(){var h=location.hash.slice(1);if(BB[h]||!h)open(BB[h]?h:null,false)});
 })();
 (function(){
 var vk=document.getElementById('adressen');if(!vk)return;
@@ -234,7 +238,7 @@ function render(){
  var m=found.length,n=st.prov?cards.filter(function(c){return c.dataset.prov===st.prov}).length:cards.length,act=active()>0,pn=st.prov?PROVN[st.prov]:'';
  document.getElementById('vk-titel').textContent=st.prov?(act?(NL?m+' van '+n+' adressen in '+pn:m+' of '+n+' addresses in '+pn):(NL?'De '+n+' adressen in '+pn:'The '+n+' addresses in '+pn)):(act?(NL?m+' van '+n+' adressen':m+' of '+n+' addresses'):document.getElementById('vk-titel').dataset.all);
  document.getElementById('vk-res').textContent=(NL?m+(m===1?' adres':' adressen'):m+(m===1?' address':' addresses'))+(capped?(NL?', de eerste '+LIM+' getoond':', first '+LIM+' shown'):'')+(st.prov?(NL?' in '+pn:' in '+pn):'');
- document.getElementById('vk-resetf').hidden=!act&&!st.prov;
+ document.getElementById('vk-resetf').hidden=!act;
  document.getElementById('vk-empty').hidden=m>0;
  var more=document.getElementById('vk-more');more.hidden=!capped;more.textContent=NL?'Toon alle '+m+' adressen':'Show all '+m+' addresses';
  var cu=st.w.e!==W0.e||st.w.s!==W0.s||st.w.p!==W0.p;document.getElementById('vk-resetw').hidden=!cu;
@@ -248,9 +252,9 @@ function render(){
 var PROVN=%PROVN%,PROVCH=%PROVCH%;
 vk.addEventListener('click',function(e){var b=e.target.closest('.fchip');if(!b)return;var f=b.dataset.f,v=b.dataset.v;
  if(f==='hist')st.hist=!st.hist;else if(f==='lab'||f==='sort')st[f]=v;else st[f]=+v;render()});
-vk.querySelectorAll('[data-w]').forEach(function(i){i.addEventListener('input',function(){st.w[i.dataset.w]=+i.value;render()})});
+vk.querySelectorAll('[data-w]').forEach(function(i){i.addEventListener('input',function(){st.w[i.dataset.w]=+i.value;if(!st.w.e&&!st.w.s&&!st.w.p)st.w[i.dataset.w]=5;render()})});
 document.getElementById('vk-resetw').onclick=function(){st.w={e:W0.e,s:W0.s,p:W0.p};render()};
-document.getElementById('vk-resetf').onclick=function(){st.max=0;st.lab='all';st.hist=false;st.radius=0;st.prov=null;render()};
+document.getElementById('vk-resetf').onclick=function(){st.max=0;st.lab='all';st.hist=false;st.radius=0;render()};
 document.getElementById('vk-more').onclick=function(){st.all=true;render()};
 document.getElementById('vk-clear').onclick=function(){st.home=null;st.radius=0;if(st.sort==='afstand')st.sort='score';document.getElementById('vk-adres').value='';render()};
 var G=null;
@@ -263,9 +267,10 @@ function geocode(q){q=String(q||'').trim();if(!q)return null;var m=q.match(/(?:^
  if(!best){var last=norm(q).split(' ').pop();if(last&&last.length>=3)G.pl.forEach(function(p){if(p.k.indexOf(last)===0&&(!best||p.k.length<best.p.k.length))best={p:p,s:0}})}
  return best?{lat:best.p.lat,lng:best.p.lng,label:best.p.n}:null}
 function setHome(h){st.home=h;st.sort='afstand';document.getElementById('vk-err').hidden=true;render()}
-document.getElementById('vk-form').addEventListener('submit',function(e){e.preventDefault();var q=document.getElementById('vk-adres').value;loadGeo(function(){var r=geocode(q);if(r){document.getElementById('vk-adres').value=r.label;setHome(r)}else{document.getElementById('vk-err').hidden=false;document.getElementById('vk-help').hidden=true}})});
+document.getElementById('vk-form').addEventListener('submit',function(e){e.preventDefault();var inp=document.getElementById('vk-adres'),q=inp.value;if(!q.trim())return;loadGeo(function(){var r=geocode(q);if(r){inp.value=r.label;setHome(r)}else{document.getElementById('vk-err').hidden=false;document.getElementById('vk-help').hidden=true;if(st.home)inp.value=st.home.label}})});
 var gb=document.getElementById('vk-geo');if(!navigator.geolocation)gb.hidden=true;else gb.onclick=function(){navigator.geolocation.getCurrentPosition(function(p){var la=p.coords.latitude,lo=p.coords.longitude;loadGeo(function(){var np=nearest(la,lo);setHome({lat:la,lng:lo,label:(NL?'jouw locatie':'your location')+(np?', bij '+np.n:'')})})},function(){document.getElementById('vk-err').hidden=false})};
 document.addEventListener('des:prov',function(e){st.prov=e.detail||null;st.all=false;render()});
+var h0=location.hash.slice(1);if(PROVN[h0])st.prov=h0;
 document.querySelectorAll('[data-scope]').forEach(function(a){a.addEventListener('click',function(){st.prov=a.dataset.scope;render()})});
 render();
 })();

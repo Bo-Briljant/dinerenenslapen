@@ -32,7 +32,7 @@ def eur(v, lang='nl'):
     s = str(int(round(v))) if whole else '%.2f' % v
     a, _, b = s.partition('.')
     a = re.sub(r'\B(?=(\d{3})+(?!\d))', '.' if lang == 'nl' else ',', a)
-    return '€ ' + a + ((',' if lang == 'nl' else '.') + b if b else '')
+    return '€\u00a0' + a + ((',' if lang == 'nl' else '.') + b if b else '')
 
 def num(v, lang='nl'):
     s = ('%.1f' % v)
@@ -319,7 +319,7 @@ def page(path, lang, title, desc, body, active='', alt=None, ld=None, og=None, p
     ogimg = og or SITE + '/og.jpg'
     pre = '<link rel="preload" href="/fonts/cormorant-garamond-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/source-serif-4-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>'
     if preload_img: pre += preload_img
-    doc = ('<!doctype html><html lang="%s"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+    doc = ('<!doctype html><html lang="%s" class="nojs"><head><meta charset="utf-8"><script>document.documentElement.className="js"</script><meta name="viewport" content="width=device-width,initial-scale=1">'
            '<title>%s</title><meta name="description" content="%s"><link rel="canonical" href="%s%s">%s%s'
            '<meta name="robots" content="%s"><meta name="theme-color" content="#10231C">'
            '<meta property="og:type" content="%s"><meta property="og:site_name" content="Dineren en Slapen"><meta property="og:locale" content="%s"><meta property="og:title" content="%s"><meta property="og:description" content="%s"><meta property="og:url" content="%s%s"><meta property="og:image" content="%s"><meta name="twitter:card" content="summary_large_image">'

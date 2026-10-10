@@ -12,62 +12,62 @@ Regels: eten en slapen op hetzelfde adres, geen ketens, hooguit vier adressen pe
 
 ## Per provincie
 
-- [Restaurant met overnachting in Groningen](https://dinerenenslapen.nl/groningen/): Piloersemaborg, Prinsenhof & Restaurant Nassau, Herberg Onder de Linden, Restaurant de Molenaar. Voor twee € 295 tot € 410.
-- [Restaurant met overnachting in Friesland](https://dinerenenslapen.nl/friesland/): Landgoed Lauswolt, De Hinde, De Herberg van Smallingerland, AEST. Voor twee € 310 tot € 435.
-- [Restaurant met overnachting in Drenthe](https://dinerenenslapen.nl/drenthe/): Landhuishotel & Restaurant Rikus, Château De Havixhorst, POSTEN Nordic Cuisine. Voor twee € 295 tot € 330.
-- [Restaurant met overnachting in Overijssel](https://dinerenenslapen.nl/overijssel/): De Lindenhof, De Bloemenbeek, De Swarte Ruijter, De Librije & Librije's Hotel. Voor twee € 340 tot € 1.430.
-- [Restaurant met overnachting in Flevoland](https://dinerenenslapen.nl/flevoland/): 't Voorhuys, Hotel Van Saaze. Voor twee € 200 tot € 225.
-- [Restaurant met overnachting in Gelderland](https://dinerenenslapen.nl/gelderland/): Broederenklooster, Kasteel Engelenburg, De Echoput. Voor twee € 285 tot € 520.
-- [Restaurant met overnachting in Utrecht](https://dinerenenslapen.nl/utrecht/): De Nederlanden, Parc Broekhuizen, Grand Hotel Karel V. Voor twee € 380 tot € 520.
-- [Restaurant met overnachting in Noord-Holland](https://dinerenenslapen.nl/noord-holland/): De L'Europe Amsterdam, The Dylan Amsterdam, Merlet, ML. Voor twee € 470 tot € 1.160.
-- [Restaurant met overnachting in Zuid-Holland](https://dinerenenslapen.nl/zuid-holland/): Central Park Voorburg, De Watergeus, Weeshuis Gouda. Voor twee € 260 tot € 500.
-- [Restaurant met overnachting in Zeeland](https://dinerenenslapen.nl/zeeland/): De Kromme Watergang, Hof aan Zee, Inter Scaldes, Hostellerie Schuddebeurs. Voor twee € 280 tot € 895.
-- [Restaurant met overnachting in Noord-Brabant](https://dinerenenslapen.nl/noord-brabant/): Kasteel Gemert & Restaurant GEM., Kazerne, Kasteel Steenenburg. Voor twee € 255 tot € 950.
-- [Restaurant met overnachting in Limburg](https://dinerenenslapen.nl/limburg/): Van Oys Maastricht Retreat, Château Neercanne, Château St. Gerlach, Kasteeltje Hattem. Voor twee € 340 tot € 670.
+- [Restaurant met overnachting in Groningen](https://dinerenenslapen.nl/groningen/): Piloersemaborg, Prinsenhof & Restaurant Nassau, Herberg Onder de Linden, Restaurant de Molenaar. Voor twee € 295 tot € 410.
+- [Restaurant met overnachting in Friesland](https://dinerenenslapen.nl/friesland/): Landgoed Lauswolt, De Hinde, De Herberg van Smallingerland, AEST. Voor twee € 310 tot € 435.
+- [Restaurant met overnachting in Drenthe](https://dinerenenslapen.nl/drenthe/): Landhuishotel & Restaurant Rikus, Château De Havixhorst, POSTEN Nordic Cuisine. Voor twee € 295 tot € 330.
+- [Restaurant met overnachting in Overijssel](https://dinerenenslapen.nl/overijssel/): De Lindenhof, De Bloemenbeek, De Swarte Ruijter, De Librije & Librije's Hotel. Voor twee € 340 tot € 1.430.
+- [Restaurant met overnachting in Flevoland](https://dinerenenslapen.nl/flevoland/): 't Voorhuys, Hotel Van Saaze. Voor twee € 200 tot € 225.
+- [Restaurant met overnachting in Gelderland](https://dinerenenslapen.nl/gelderland/): Broederenklooster, Kasteel Engelenburg, De Echoput. Voor twee € 285 tot € 520.
+- [Restaurant met overnachting in Utrecht](https://dinerenenslapen.nl/utrecht/): De Nederlanden, Parc Broekhuizen, Grand Hotel Karel V. Voor twee € 380 tot € 520.
+- [Restaurant met overnachting in Noord-Holland](https://dinerenenslapen.nl/noord-holland/): De L'Europe Amsterdam, The Dylan Amsterdam, Merlet, ML. Voor twee € 470 tot € 1.160.
+- [Restaurant met overnachting in Zuid-Holland](https://dinerenenslapen.nl/zuid-holland/): Central Park Voorburg, De Watergeus, Weeshuis Gouda. Voor twee € 260 tot € 500.
+- [Restaurant met overnachting in Zeeland](https://dinerenenslapen.nl/zeeland/): De Kromme Watergang, Hof aan Zee, Inter Scaldes, Hostellerie Schuddebeurs. Voor twee € 280 tot € 895.
+- [Restaurant met overnachting in Noord-Brabant](https://dinerenenslapen.nl/noord-brabant/): Kasteel Gemert & Restaurant GEM., Kazerne, Kasteel Steenenburg. Voor twee € 255 tot € 950.
+- [Restaurant met overnachting in Limburg](https://dinerenenslapen.nl/limburg/): Van Oys Maastricht Retreat, Château Neercanne, Château St. Gerlach, Kasteeltje Hattem. Voor twee € 340 tot € 670.
 
 ## Adressen
 
-- [Piloersemaborg, Den Ham](https://dinerenenslapen.nl/groningen/piloersemaborg/): Borgboerderij met restaurant en kamers.  Ons cijfer 9,3, ca. € 410 voor twee.
-- [Van Oys Maastricht Retreat, Eijsden](https://dinerenenslapen.nl/limburg/van-oys-maastricht-retreat/): Vijfsterrenhotel op kasteellandgoed met tweesterrenrestaurant. 2 Michelinsterren. Ons cijfer 9,3, ca. € 550 voor twee.
-- [De Nederlanden, Vreeland](https://dinerenenslapen.nl/utrecht/de-nederlanden-vreeland/): Sterrenrestaurant met boetiekhotel aan de Vecht. Eén Michelinster. Ons cijfer 9,0, ca. € 380 voor twee.
-- [Château Neercanne, Maastricht](https://dinerenenslapen.nl/limburg/chateau-neercanne/): Terrassenkasteel met sterrenrestaurant en suites. Eén Michelinster. Ons cijfer 9,0, ca. € 670 voor twee.
-- [De L'Europe Amsterdam, Amsterdam](https://dinerenenslapen.nl/noord-holland/de-l-europe-amsterdam/): Grand hotel met tweesterrenrestaurant. 2 Michelinsterren. Ons cijfer 8,9, ca. € 1.055 voor twee.
-- [Central Park Voorburg, Voorburg](https://dinerenenslapen.nl/zuid-holland/central-park-voorburg/): Boutique hotel met sterrenrestaurant op een buitenplaats. Eén Michelinster. Ons cijfer 8,9, ca. € 500 voor twee.
-- [Prinsenhof & Restaurant Nassau, Groningen](https://dinerenenslapen.nl/groningen/prinsenhof-groningen/): Boetiekhotel in monumentaal stadspaleis met sterrenrestaurant. Eén Michelinster. Ons cijfer 8,9, ca. € 400 voor twee.
-- [De Lindenhof, Giethoorn](https://dinerenenslapen.nl/overijssel/de-lindenhof-giethoorn/): Tweesterrenrestaurant met suites. 2 Michelinsterren. Ons cijfer 8,9, ca. € 525 voor twee.
-- [Landgoed Lauswolt, Beetsterzwaag](https://dinerenenslapen.nl/friesland/landgoed-lauswolt/): Landgoedhotel met sterrenrestaurant en bistro. Eén Michelinster. Ons cijfer 8,8, ca. € 435 voor twee.
-- [De Bloemenbeek, De Lutte](https://dinerenenslapen.nl/overijssel/de-bloemenbeek-de-lutte/): Landhuishotel met sterrenrestaurant en spa. Eén Michelinster. Ons cijfer 8,8, ca. € 420 voor twee.
-- [Herberg Onder de Linden, Aduard](https://dinerenenslapen.nl/groningen/herberg-onder-de-linden/): Sterrenrestaurant met kamers en suites in 18e-eeuwse herberg. Eén Michelinster. Ons cijfer 8,8, ca. € 395 voor twee.
-- [Parc Broekhuizen, Leersum](https://dinerenenslapen.nl/utrecht/parc-broekhuizen-leersum/): Culinair landgoed met sterrenrestaurant en suites. Eén Michelinster. Ons cijfer 8,8, ca. € 445 voor twee.
-- [De Swarte Ruijter, Holten](https://dinerenenslapen.nl/overijssel/de-swarte-ruijter-holten/): Sterrenrestaurant met kamers. Eén Michelinster. Ons cijfer 8,8, ca. € 340 voor twee.
-- [De Watergeus, Noorden](https://dinerenenslapen.nl/zuid-holland/de-watergeus-noorden/): Restaurant met kamers aan de plas.  Ons cijfer 8,8, ca. € 260 voor twee.
-- [Grand Hotel Karel V, Utrecht](https://dinerenenslapen.nl/utrecht/grand-hotel-karel-v-utrecht/): Grand hotel in voormalig klooster met sterrenrestaurant. Eén Michelinster. Ons cijfer 8,7, ca. € 520 voor twee.
-- [Restaurant de Molenaar, Onderdendam](https://dinerenenslapen.nl/groningen/restaurant-de-molenaar/): Restaurant met kamers in een korenmolen.  Ons cijfer 8,7, ca. € 295 voor twee.
-- [The Dylan Amsterdam, Amsterdam](https://dinerenenslapen.nl/noord-holland/the-dylan-amsterdam/): Boetiekhotel aan de gracht met tweesterrenrestaurant. 2 Michelinsterren. Ons cijfer 8,7, ca. € 1.160 voor twee.
-- [Broederenklooster, Zutphen](https://dinerenenslapen.nl/gelderland/broederenklooster-zutphen/): Boetiekhotel en restaurant in middeleeuws klooster.  Ons cijfer 8,7, ca. € 285 voor twee.
-- [De Kromme Watergang, Hoofdplaat](https://dinerenenslapen.nl/zeeland/de-kromme-watergang-hoofdplaat/): Sterrenrestaurant met suites in de polder. Eén Michelinster. Ons cijfer 8,7, ca. € 485 voor twee.
-- [Weeshuis Gouda, Gouda](https://dinerenenslapen.nl/zuid-holland/weeshuis-gouda/): Boutique hotel met sterrenrestaurant in een voormalig weeshuis. Eén Michelinster. Ons cijfer 8,7, ca. € 415 voor twee.
-- [Merlet, Schoorl](https://dinerenenslapen.nl/noord-holland/merlet-schoorl/): Familiehotel met sterrenrestaurant aan de duinrand. Eén Michelinster. Ons cijfer 8,7, ca. € 470 voor twee.
-- [Château St. Gerlach, Valkenburg aan de Geul](https://dinerenenslapen.nl/limburg/chateau-st-gerlach/): Kasteelhotel op kloosterlandgoed met restaurants en spa.  Ons cijfer 8,6, ca. € 520 voor twee.
-- [Kasteel Gemert & Restaurant GEM., Gemert](https://dinerenenslapen.nl/noord-brabant/kasteel-gemert-restaurant-gem/): Kasteel met tweesterrenrestaurant en suites. 2 Michelinsterren. Ons cijfer 8,6, ca. € 950 voor twee.
-- [Kazerne, Eindhoven](https://dinerenenslapen.nl/noord-brabant/kazerne-eindhoven/): Designhotel met restaurant in monumentale kazerne.  Ons cijfer 8,6, ca. € 255 voor twee.
-- [Kasteel Engelenburg, Brummen](https://dinerenenslapen.nl/gelderland/kasteel-engelenburg/): Kasteelhotel met restaurant en golfbaan.  Ons cijfer 8,5, ca. € 420 voor twee.
-- [Kasteel Steenenburg, Nieuwkuijk](https://dinerenenslapen.nl/noord-brabant/kasteel-steenenburg/): Kasteelhotel met restaurant in de orangerie.  Ons cijfer 8,5, ca. € 320 voor twee.
-- [ML, Haarlem](https://dinerenenslapen.nl/noord-holland/ml-haarlem/): Stadshotel in monument met sterrenrestaurant. Eén Michelinster. Ons cijfer 8,5, ca. € 490 voor twee.
-- [Hof aan Zee, Dishoek](https://dinerenenslapen.nl/zeeland/hof-aan-zee-dishoek/): Restaurant met kamers bij strand en duinen.  Ons cijfer 8,5, ca. € 340 voor twee.
-- [Inter Scaldes, Kruiningen](https://dinerenenslapen.nl/zeeland/inter-scaldes-kruiningen/): Sterrenrestaurant met manoir en suites. 2 Michelinsterren. Ons cijfer 8,5, ca. € 895 voor twee.
-- [De Echoput, Hoog Soeren](https://dinerenenslapen.nl/gelderland/hotel-gastronomique-de-echoput/): Vijfsterrenhotel met sterrenrestaurant en bistro. Eén Michelinster. Ons cijfer 8,4, ca. € 520 voor twee.
-- [Landhuishotel & Restaurant Rikus, Eext](https://dinerenenslapen.nl/drenthe/rikus-eext/): Landhuishotel met restaurant.  Ons cijfer 8,4, ca. € 310 voor twee.
-- [Château De Havixhorst, De Schiphorst](https://dinerenenslapen.nl/drenthe/chateau-de-havixhorst/): Havezate met restaurant en hotelsuites.  Ons cijfer 8,4, ca. € 330 voor twee.
-- [De Hinde, Hindeloopen](https://dinerenenslapen.nl/friesland/de-hinde-hindeloopen/): Restaurant met logement aan de haven.  Ons cijfer 8,4, ca. € 310 voor twee.
-- [POSTEN Nordic Cuisine, Frederiksoord](https://dinerenenslapen.nl/drenthe/posten-nordic-cuisine/): Restaurant met kamers.  Ons cijfer 8,4, ca. € 295 voor twee.
-- [De Herberg van Smallingerland, Rottevalle](https://dinerenenslapen.nl/friesland/herberg-van-smallingerland/): Monumentale dorpsherberg met restaurant en gastenverblijf.  Ons cijfer 8,3, ca. € 340 voor twee.
-- ['t Voorhuys, Emmeloord](https://dinerenenslapen.nl/flevoland/hotel-restaurant-t-voorhuys/): Stadshotel met restaurant-grandcafé en torenkamers.  Ons cijfer 8,3, ca. € 225 voor twee.
-- [AEST, Hoorn, Terschelling](https://dinerenenslapen.nl/friesland/aest-terschelling/): Restaurant met boetiekhotel op Terschelling.  Ons cijfer 8,3, ca. € 390 voor twee.
-- [Kasteeltje Hattem, Roermond](https://dinerenenslapen.nl/limburg/kasteeltje-hattem/): Kasteelhotel met restaurant in het stadspark.  Ons cijfer 8,3, ca. € 340 voor twee.
-- [De Librije & Librije's Hotel, Zwolle](https://dinerenenslapen.nl/overijssel/de-librije-zwolle/): Driesterrenrestaurant met boetiekhotel. 3 Michelinsterren. Ons cijfer 8,3, ca. € 1.430 voor twee.
-- [Hostellerie Schuddebeurs, Schuddebeurs](https://dinerenenslapen.nl/zeeland/hostellerie-schuddebeurs/): Hostellerie met streekrestaurant.  Ons cijfer 8,3, ca. € 280 voor twee.
-- [Hotel Van Saaze, Kraggenburg](https://dinerenenslapen.nl/flevoland/hotel-van-saaze-kraggenburg/): Familiehotel met restaurant.  Ons cijfer 8,2, ca. € 200 voor twee.
+- [Piloersemaborg, Den Ham](https://dinerenenslapen.nl/groningen/piloersemaborg/): Borgboerderij met restaurant en kamers.  Ons cijfer 9,3, ca. € 410 voor twee.
+- [Van Oys Maastricht Retreat, Eijsden](https://dinerenenslapen.nl/limburg/van-oys-maastricht-retreat/): Vijfsterrenhotel op kasteellandgoed met tweesterrenrestaurant. 2 Michelinsterren. Ons cijfer 9,3, ca. € 550 voor twee.
+- [De Nederlanden, Vreeland](https://dinerenenslapen.nl/utrecht/de-nederlanden-vreeland/): Sterrenrestaurant met boetiekhotel aan de Vecht. Eén Michelinster. Ons cijfer 9,0, ca. € 380 voor twee.
+- [Château Neercanne, Maastricht](https://dinerenenslapen.nl/limburg/chateau-neercanne/): Terrassenkasteel met sterrenrestaurant en suites. Eén Michelinster. Ons cijfer 9,0, ca. € 670 voor twee.
+- [De L'Europe Amsterdam, Amsterdam](https://dinerenenslapen.nl/noord-holland/de-l-europe-amsterdam/): Grand hotel met tweesterrenrestaurant. 2 Michelinsterren. Ons cijfer 8,9, ca. € 1.055 voor twee.
+- [Central Park Voorburg, Voorburg](https://dinerenenslapen.nl/zuid-holland/central-park-voorburg/): Boutique hotel met sterrenrestaurant op een buitenplaats. Eén Michelinster. Ons cijfer 8,9, ca. € 500 voor twee.
+- [Prinsenhof & Restaurant Nassau, Groningen](https://dinerenenslapen.nl/groningen/prinsenhof-groningen/): Boetiekhotel in monumentaal stadspaleis met sterrenrestaurant. Eén Michelinster. Ons cijfer 8,9, ca. € 400 voor twee.
+- [De Lindenhof, Giethoorn](https://dinerenenslapen.nl/overijssel/de-lindenhof-giethoorn/): Tweesterrenrestaurant met suites. 2 Michelinsterren. Ons cijfer 8,9, ca. € 525 voor twee.
+- [Landgoed Lauswolt, Beetsterzwaag](https://dinerenenslapen.nl/friesland/landgoed-lauswolt/): Landgoedhotel met sterrenrestaurant en bistro. Eén Michelinster. Ons cijfer 8,8, ca. € 435 voor twee.
+- [De Bloemenbeek, De Lutte](https://dinerenenslapen.nl/overijssel/de-bloemenbeek-de-lutte/): Landhuishotel met sterrenrestaurant en spa. Eén Michelinster. Ons cijfer 8,8, ca. € 420 voor twee.
+- [Herberg Onder de Linden, Aduard](https://dinerenenslapen.nl/groningen/herberg-onder-de-linden/): Sterrenrestaurant met kamers en suites in 18e-eeuwse herberg. Eén Michelinster. Ons cijfer 8,8, ca. € 395 voor twee.
+- [Parc Broekhuizen, Leersum](https://dinerenenslapen.nl/utrecht/parc-broekhuizen-leersum/): Culinair landgoed met sterrenrestaurant en suites. Eén Michelinster. Ons cijfer 8,8, ca. € 445 voor twee.
+- [De Swarte Ruijter, Holten](https://dinerenenslapen.nl/overijssel/de-swarte-ruijter-holten/): Sterrenrestaurant met kamers. Eén Michelinster. Ons cijfer 8,8, ca. € 340 voor twee.
+- [De Watergeus, Noorden](https://dinerenenslapen.nl/zuid-holland/de-watergeus-noorden/): Restaurant met kamers aan de plas.  Ons cijfer 8,8, ca. € 260 voor twee.
+- [Grand Hotel Karel V, Utrecht](https://dinerenenslapen.nl/utrecht/grand-hotel-karel-v-utrecht/): Grand hotel in voormalig klooster met sterrenrestaurant. Eén Michelinster. Ons cijfer 8,7, ca. € 520 voor twee.
+- [Restaurant de Molenaar, Onderdendam](https://dinerenenslapen.nl/groningen/restaurant-de-molenaar/): Restaurant met kamers in een korenmolen.  Ons cijfer 8,7, ca. € 295 voor twee.
+- [The Dylan Amsterdam, Amsterdam](https://dinerenenslapen.nl/noord-holland/the-dylan-amsterdam/): Boetiekhotel aan de gracht met tweesterrenrestaurant. 2 Michelinsterren. Ons cijfer 8,7, ca. € 1.160 voor twee.
+- [Broederenklooster, Zutphen](https://dinerenenslapen.nl/gelderland/broederenklooster-zutphen/): Boetiekhotel en restaurant in middeleeuws klooster.  Ons cijfer 8,7, ca. € 285 voor twee.
+- [De Kromme Watergang, Hoofdplaat](https://dinerenenslapen.nl/zeeland/de-kromme-watergang-hoofdplaat/): Sterrenrestaurant met suites in de polder. Eén Michelinster. Ons cijfer 8,7, ca. € 485 voor twee.
+- [Weeshuis Gouda, Gouda](https://dinerenenslapen.nl/zuid-holland/weeshuis-gouda/): Boutique hotel met sterrenrestaurant in een voormalig weeshuis. Eén Michelinster. Ons cijfer 8,7, ca. € 415 voor twee.
+- [Merlet, Schoorl](https://dinerenenslapen.nl/noord-holland/merlet-schoorl/): Familiehotel met sterrenrestaurant aan de duinrand. Eén Michelinster. Ons cijfer 8,7, ca. € 470 voor twee.
+- [Château St. Gerlach, Valkenburg aan de Geul](https://dinerenenslapen.nl/limburg/chateau-st-gerlach/): Kasteelhotel op kloosterlandgoed met restaurants en spa.  Ons cijfer 8,6, ca. € 520 voor twee.
+- [Kasteel Gemert & Restaurant GEM., Gemert](https://dinerenenslapen.nl/noord-brabant/kasteel-gemert-restaurant-gem/): Kasteel met tweesterrenrestaurant en suites. 2 Michelinsterren. Ons cijfer 8,6, ca. € 950 voor twee.
+- [Kazerne, Eindhoven](https://dinerenenslapen.nl/noord-brabant/kazerne-eindhoven/): Designhotel met restaurant in monumentale kazerne.  Ons cijfer 8,6, ca. € 255 voor twee.
+- [Kasteel Engelenburg, Brummen](https://dinerenenslapen.nl/gelderland/kasteel-engelenburg/): Kasteelhotel met restaurant en golfbaan.  Ons cijfer 8,5, ca. € 420 voor twee.
+- [Kasteel Steenenburg, Nieuwkuijk](https://dinerenenslapen.nl/noord-brabant/kasteel-steenenburg/): Kasteelhotel met restaurant in de orangerie.  Ons cijfer 8,5, ca. € 320 voor twee.
+- [ML, Haarlem](https://dinerenenslapen.nl/noord-holland/ml-haarlem/): Stadshotel in monument met sterrenrestaurant. Eén Michelinster. Ons cijfer 8,5, ca. € 490 voor twee.
+- [Hof aan Zee, Dishoek](https://dinerenenslapen.nl/zeeland/hof-aan-zee-dishoek/): Restaurant met kamers bij strand en duinen.  Ons cijfer 8,5, ca. € 340 voor twee.
+- [Inter Scaldes, Kruiningen](https://dinerenenslapen.nl/zeeland/inter-scaldes-kruiningen/): Sterrenrestaurant met manoir en suites. 2 Michelinsterren. Ons cijfer 8,5, ca. € 895 voor twee.
+- [De Echoput, Hoog Soeren](https://dinerenenslapen.nl/gelderland/hotel-gastronomique-de-echoput/): Vijfsterrenhotel met sterrenrestaurant en bistro. Eén Michelinster. Ons cijfer 8,4, ca. € 520 voor twee.
+- [Landhuishotel & Restaurant Rikus, Eext](https://dinerenenslapen.nl/drenthe/rikus-eext/): Landhuishotel met restaurant.  Ons cijfer 8,4, ca. € 310 voor twee.
+- [Château De Havixhorst, De Schiphorst](https://dinerenenslapen.nl/drenthe/chateau-de-havixhorst/): Havezate met restaurant en hotelsuites.  Ons cijfer 8,4, ca. € 330 voor twee.
+- [De Hinde, Hindeloopen](https://dinerenenslapen.nl/friesland/de-hinde-hindeloopen/): Restaurant met logement aan de haven.  Ons cijfer 8,4, ca. € 310 voor twee.
+- [POSTEN Nordic Cuisine, Frederiksoord](https://dinerenenslapen.nl/drenthe/posten-nordic-cuisine/): Restaurant met kamers.  Ons cijfer 8,4, ca. € 295 voor twee.
+- [De Herberg van Smallingerland, Rottevalle](https://dinerenenslapen.nl/friesland/herberg-van-smallingerland/): Monumentale dorpsherberg met restaurant en gastenverblijf.  Ons cijfer 8,3, ca. € 340 voor twee.
+- ['t Voorhuys, Emmeloord](https://dinerenenslapen.nl/flevoland/hotel-restaurant-t-voorhuys/): Stadshotel met restaurant-grandcafé en torenkamers.  Ons cijfer 8,3, ca. € 225 voor twee.
+- [AEST, Hoorn, Terschelling](https://dinerenenslapen.nl/friesland/aest-terschelling/): Restaurant met boetiekhotel op Terschelling.  Ons cijfer 8,3, ca. € 390 voor twee.
+- [Kasteeltje Hattem, Roermond](https://dinerenenslapen.nl/limburg/kasteeltje-hattem/): Kasteelhotel met restaurant in het stadspark.  Ons cijfer 8,3, ca. € 340 voor twee.
+- [De Librije & Librije's Hotel, Zwolle](https://dinerenenslapen.nl/overijssel/de-librije-zwolle/): Driesterrenrestaurant met boetiekhotel. 3 Michelinsterren. Ons cijfer 8,3, ca. € 1.430 voor twee.
+- [Hostellerie Schuddebeurs, Schuddebeurs](https://dinerenenslapen.nl/zeeland/hostellerie-schuddebeurs/): Hostellerie met streekrestaurant.  Ons cijfer 8,3, ca. € 280 voor twee.
+- [Hotel Van Saaze, Kraggenburg](https://dinerenenslapen.nl/flevoland/hotel-van-saaze-kraggenburg/): Familiehotel met restaurant.  Ons cijfer 8,2, ca. € 200 voor twee.
 
 ## Lijsten
 
