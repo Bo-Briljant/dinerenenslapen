@@ -5,8 +5,8 @@ _cfg = os.path.join(HERE, 'data', 'supabase.json')
 DB = json.load(open(_cfg)) if os.path.exists(_cfg) else {'url': '', 'key': ''}
 
 FORM_MSG = {
-    'nl': {'fail': 'Versturen lukte niet. Probeer het zo nog eens, of mail ons op %s.' % MAIL, 'many': 'Je hebt net al een paar keer iets gestuurd. Probeer het over een uur nog eens.'},
-    'en': {'fail': 'Sending did not work. Please try again shortly, or email us at %s.' % MAIL, 'many': 'You have just sent a few messages. Please try again in an hour.'},
+    'nl': {'fail': 'Versturen lukte niet. Probeer het zo nog eens, of mail ons op %s.' % MAIL, 'many': 'Je hebt net al een paar keer iets gestuurd. Probeer het over een uur nog eens.', 'prov': 'Kies nog even je provincie, of kies Geen voorkeur.', 'mail': 'Vul een geldig e-mailadres in.', 'req': 'Vul de verplichte velden in.'},
+    'en': {'fail': 'Sending did not work. Please try again shortly, or email us at %s.' % MAIL, 'many': 'You have just sent a few messages. Please try again in an hour.', 'prov': 'Please choose a province, or choose No preference.', 'mail': 'Please enter a valid email address.', 'req': 'Please fill in the required fields.'},
 }
 
 JS = (r"""(function(){var DB=%s,MSG=%s,L=document.documentElement.lang==='en'?'en':'nl',t0=Date.now();
@@ -14,7 +14,7 @@ function hd(){var h={apikey:DB.key,'Content-Type':'application/json',Prefer:'ret
 function v(f,n){var e=f.elements[n];if(!e)return'';if(e.type==='checkbox')return e.checked;return String(e.value||'').trim()}
 function nn(x){return x===''?null:x}
 var MAP={
-nieuwsbrief:function(f){return['subscribers',{email:v(f,'email'),source:location.pathname,lang:L}]},
+nieuwsbrief:function(f){return['subscribers',{email:v(f,'email'),province:nn(v(f,'provincie')),source:location.pathname,lang:L}]},
 tip:function(f){return['messages',{kind:'tip',address_name:v(f,'adres'),address_place:nn(v(f,'plaats')),province:nn(v(f,'provincie')),body:nn(v(f,'waarom')),email:nn(v(f,'email')),page:location.pathname}]},
 contact:function(f){return['messages',{kind:'contact',name:nn(v(f,'naam')),email:v(f,'email'),subject:nn(v(f,'onderwerp')),body:v(f,'bericht'),page:location.pathname}]},
 review:function(f){return['reviews',{loc_id:f.dataset.loc,loc_name:f.dataset.name,name:v(f,'naam'),email:nn(v(f,'email')),visit_month:nn(v(f,'wanneer')),score_e:+v(f,'eten'),score_s:+v(f,'slapen'),score_p:+v(f,'prijs'),body:v(f,'tekst'),visited:v(f,'bezocht')===true,lang:L}]}};
@@ -22,6 +22,7 @@ document.querySelectorAll('.js-form').forEach(function(f){f.addEventListener('su
 var w=f.closest('.fwrap')||f.parentNode,er=w.querySelector('.ferr'),b=f.querySelector('[type=submit]');
 function done(){w.classList.add('sent');var t=w.querySelector('.thanks');if(t){t.setAttribute('tabindex','-1');t.focus()}}
 if(v(f,'website')){done();return}
+if(f.checkValidity&&!f.checkValidity()){var bad=f.querySelector(':invalid');if(er){er.hidden=false;er.textContent=bad&&bad.tagName==='SELECT'?MSG[L].prov:(bad&&bad.type==='email'?MSG[L].mail:MSG[L].req)}if(bad)bad.focus();return}
 if(!DB.url){if(er){er.hidden=false;er.textContent=MSG[L].fail}return}
 var m=MAP[f.dataset.kind](f);b.disabled=true;if(er)er.hidden=true;
 fetch(DB.url+'/rest/v1/'+m[0],{method:'POST',headers:hd(),body:JSON.stringify(m[1])}).then(function(r){
@@ -45,13 +46,29 @@ HONEY = '<div class="hp" aria-hidden="true"><label>Laat dit veld leeg<input type
 
 def ferr(): return '<p class="ferr" role="alert" hidden></p>'
 
-def newsletter_form(lang, idp, compact=False, dark=True):
+def prov_select(lang, idp, dark=False):
+    nl = lang == 'nl'
+    opts = ''.join('<option value="%s" data-nb>%s</option>' % (p['id'], esc(pname(p, lang))) for p in sorted(PROVS, key=lambda p: pname(p, lang)))
+    return ('<label for="%s-prov" class="nbl">%s</label><select id="%s-prov" class="inp nbp" name="provincie" required>'
+            '<option value="">%s</option>%s<option value="geen" data-nb>%s</option></select>') % (
+        idp, 'In welke provincie ga je het liefst dineren en slapen?' if nl else 'Which province would you most like to dine and stay in?', idp,
+        'Kies je provincie' if nl else 'Choose a province', opts, 'Geen voorkeur, heel Nederland' if nl else 'No preference, anywhere in the Netherlands')
+
+def newsletter_form(lang, idp, compact=False, dark=True, head=True):
     t = T[lang]
-    return ('<div class="nlwrap fwrap"><form class="sub js-form" data-kind="nieuwsbrief" action="#" style="margin-top:14px" novalidate="novalidate"><label for="%s-mail" style="font:500 13px var(--sans);width:100%%">%s</label>'
+    return ('<div class="nlwrap fwrap"><form class="sub js-form" data-kind="nieuwsbrief" action="#" style="margin-top:14px" novalidate="novalidate">%s%s'
+            '<label for="%s-mail" class="nbl">%s</label>'
             '%s<input id="%s-mail" class="inp" type="email" name="email" autocomplete="email" required maxlength="200" placeholder="%s"><button class="btn%s" type="submit">%s</button></form>%s'
             '<p class="thanks" role="status">%s</p></div>') % (
-        idp, t['nlLabel'], HONEY, idp, t['ph'], ' ghost' if compact else '', t['nlBtn'], ferr(),
-        'Dank je, je staat op de lijst. De eerste mail komt begin volgende maand.' if lang == 'nl' else 'Thank you, you are on the list. The first email arrives early next month.')
+        ('<p class="nbh">%s</p>' % t['nlLabel']) if head else '', prov_select(lang, idp), idp, 'Je e-mailadres' if lang == 'nl' else 'Your email address', HONEY, idp, t['ph'], ' ghost' if compact else '', t['nlBtn'], ferr(),
+        'Dank je, je staat op de lijst. De eerste mail komt begin volgende maand, met adressen in jouw provincie voorop.' if lang == 'nl' else 'Thank you, you are on the list. The first email arrives early next month, with addresses in your province first.')
+
+def nb_preselect(doc, path):
+    seg = [x for x in path.split('/') if x]
+    if seg and seg[0] == 'en': seg = seg[1:]
+    if seg and seg[0] in {p['id'] for p in PROVS}:
+        doc = doc.replace('<option value="%s" data-nb>' % seg[0], '<option value="%s" data-nb selected>' % seg[0])
+    return doc
 
 def reviews_section(l, lang):
     nl = lang == 'nl'

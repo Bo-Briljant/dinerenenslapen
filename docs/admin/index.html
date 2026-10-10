@@ -107,13 +107,15 @@
   <section class="view" id="v-nieuwsbrief" hidden>
     <div class="bar">
       <div class="seg" role="group" aria-label="Status" id="sb-seg"></div>
-      <input class="search" id="sb-q" type="search" placeholder="Zoek op e-mailadres" aria-label="Zoek abonnees">
+      <select id="sb-prov" aria-label="Filter op voorkeursprovincie" style="width:auto"></select>
+      <input class="search" id="sb-q" type="search" placeholder="Zoek op e-mailadres of provincie" aria-label="Zoek abonnees">
       <span class="grow"></span>
       <button type="button" class="btn ghost" id="sb-copy">Kopieer adressen</button>
       <button type="button" class="btn" id="sb-csv">Download CSV</button>
     </div>
-    <p class="hint">De download bevat de actieve abonnees in de huidige selectie. Zet die lijst in je mailprogramma, bijvoorbeeld Brevo of Mailchimp. Meldt iemand zich daar af, zet hem hier dan ook op afgemeld.</p>
-    <div class="tablewrap"><table class="tbl"><thead><tr><th>E-mailadres</th><th>Ingeschreven</th><th>Via pagina</th><th>Taal</th><th>Status</th><th><span class="sr">Acties</span></th></tr></thead><tbody id="sb-rows"></tbody></table></div>
+    <p class="hint">De download bevat de actieve abonnees in de huidige selectie, met hun voorkeursprovincie. Filter eerst op een provincie voor een lijst per provincie. Zet die lijst in je mailprogramma, bijvoorbeeld Brevo of Mailchimp. Meldt iemand zich daar af, zet hem hier dan ook op afgemeld.</p>
+    <div class="panel"><h2>Actieve abonnees per voorkeursprovincie</h2><p class="muted small">Waar ze het liefst dineren en slapen. Klik op een provincie om alleen die abonnees te zien.</p><div class="pvs" id="sb-provs"></div></div>
+    <div class="tablewrap"><table class="tbl"><thead><tr><th>E-mailadres</th><th>Voorkeursprovincie</th><th>Ingeschreven</th><th>Via pagina</th><th>Taal</th><th>Status</th><th><span class="sr">Acties</span></th></tr></thead><tbody id="sb-rows"></tbody></table></div>
     <p class="muted small" id="sb-foot"></p>
   </section>
 </div>

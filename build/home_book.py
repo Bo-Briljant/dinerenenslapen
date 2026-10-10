@@ -278,7 +278,7 @@ render();
 
 def build_home(lang):
     nl = lang == 'nl'
-    h = book(lang) + explorer(lang) + home_sections(lang)
+    h = book(lang) + home_social(lang) + explorer(lang) + home_sections(lang)
     if nl:
         h += '<section class="sec"><div class="wrap" style="display:grid;gap:28px"><div class="stack0"><p class="k">Lijsten</p><h2>Waar heb je zin in?</h2></div><div class="minis">%s</div></div></section>' % ''.join(
             '<a class="mini" href="/%s/">%s<span><b>%s</b><span>%d adressen</span></span></a>' % (th['slug'], pic(th['locs'][0].get('th') or th['locs'][0]['img'], '', '76px', widths=(480,)), esc(th['nav']), len(th['locs'])) for th in THEMES)

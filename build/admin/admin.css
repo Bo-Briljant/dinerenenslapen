@@ -108,3 +108,8 @@ code{font-size:13px;background:var(--c2);padding:2px 6px;border-radius:3px;word-
 .tbl tr:last-child td{border-bottom:0}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--c);padding:12px 18px;border-radius:4px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:20}
 @media (max-width:700px){.top{padding:12px 16px}.brand b{font-size:20px;white-space:nowrap}.brand span{display:none}#who-mail{display:none}.seg{max-width:100%;overflow-x:auto}.seg button{white-space:nowrap;padding:8px 11px}.app{padding:0 16px 48px}.tabs{margin:0 -16px 18px;padding:0 8px}.tab{padding:14px 10px 12px}.stamp{display:none}.search{max-width:none}.card{padding:16px}.note{grid-template-columns:1fr}.recent button{grid-template-columns:70px minmax(0,1fr)}.recent .d{grid-column:2}}
+.pvs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:4px 24px}
+.pv{display:grid;grid-template-columns:118px 1fr 34px;align-items:center;gap:10px;border:0;background:none;padding:6px 4px;cursor:pointer;text-align:left;border-radius:4px;font-size:14px}
+.pv:hover,.pv.on{background:#F1ECDF}.pv b{text-align:right}
+.pv .track{display:block;height:8px;background:#ECE6D6;border-radius:4px;overflow:hidden}.pv .track i{display:block;height:8px;background:var(--blue);border-radius:4px}
+#v-nieuwsbrief .panel{margin-bottom:16px}

@@ -66,7 +66,11 @@ begin
   elsif tg_table_name = 'subscribers' then
     new.email := lower(btrim(new.email)); new.status := 'actief'; new.unsubscribed_at := null;
     -- bestaat het adres al, dan stil overslaan: zo verraadt de site niet wie er ingeschreven staat
-    if exists (select 1 from public.subscribers s where lower(s.email) = new.email) then return null; end if;
+    -- wel de nieuwste voorkeursprovincie bijwerken
+    if exists (select 1 from public.subscribers s where lower(s.email) = new.email) then
+      if new.province is not null then update public.subscribers s set province = new.province where lower(s.email) = new.email; end if;
+      return null;
+    end if;
   end if;
   return new;
 end $$;
@@ -128,7 +132,13 @@ create table if not exists public.subscribers (
   unsubscribed_at timestamptz,
   fp text
 );
+-- voorkeursprovincie: waar iemand het liefst dineert en slaapt ('geen' = geen voorkeur)
+alter table public.subscribers add column if not exists province text;
+alter table public.subscribers drop constraint if exists subscribers_province_check;
+alter table public.subscribers add constraint subscribers_province_check check (province is null or province in
+  ('groningen', 'friesland', 'drenthe', 'overijssel', 'flevoland', 'gelderland', 'utrecht', 'noord-holland', 'zuid-holland', 'zeeland', 'noord-brabant', 'limburg', 'geen'));
 create unique index if not exists subscribers_email_key on public.subscribers (lower(email));
+create index if not exists subscribers_province_idx on public.subscribers (province);
 create index if not exists reviews_created_idx on public.reviews (created_at);
 create index if not exists messages_created_idx on public.messages (created_at);
 create index if not exists subscribers_created_idx on public.subscribers (created_at);
@@ -150,12 +160,12 @@ revoke all on public.reviews, public.messages, public.subscribers from anon, aut
 
 grant insert (loc_id, loc_name, name, email, visit_month, score_e, score_s, score_p, body, visited, lang) on public.reviews to anon, authenticated;
 grant insert (kind, name, email, subject, address_name, address_place, province, body, page) on public.messages to anon, authenticated;
-grant insert (email, source, lang) on public.subscribers to anon, authenticated;
+grant insert (email, source, lang, province) on public.subscribers to anon, authenticated;
 
 grant select, delete on public.reviews, public.messages, public.subscribers to authenticated;
 grant update (status, note, reviewed_at) on public.reviews to authenticated;
 grant update (status, note, handled_at) on public.messages to authenticated;
-grant update (status, unsubscribed_at) on public.subscribers to authenticated;
+grant update (status, unsubscribed_at, province) on public.subscribers to authenticated;
 
 do $$
 declare t text;

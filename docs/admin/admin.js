@@ -14,7 +14,7 @@
   });
 
   var $ = function (id) { return document.getElementById(id); };
-  var S = { reviews: [], messages: [], subscribers: [], tab: 'overzicht', rv: 'nieuw', ms: 'nieuw', mk: 'alle', sbs: 'actief', loaded: false, recovering: /type=recovery/.test(location.hash) };
+  var S = { reviews: [], messages: [], subscribers: [], tab: 'overzicht', rv: 'nieuw', ms: 'nieuw', mk: 'alle', sbs: 'actief', sbp: 'alle', loaded: false, recovering: /type=recovery/.test(location.hash) };
 
   /* ---------- kleine hulpjes ---------- */
   function el(tag, attrs) {
@@ -261,7 +261,7 @@
     var all = [];
     S.reviews.forEach(function (r) { var L0 = locOf(r.loc_id); all.push({ d: r.created_at, k: 'Review', t: (L0 ? L0.n : 'Onbekend adres') + ': ' + r.name, go: ['reviews', r.status] }); });
     S.messages.forEach(function (r) { all.push({ d: r.created_at, k: r.kind === 'tip' ? 'Tip' : 'Contact', t: r.kind === 'tip' ? (r.address_name + (r.address_place ? ', ' + r.address_place : '')) : ((r.subject || 'Bericht') + (r.name ? ' van ' + r.name : '')), go: ['berichten', r.status] }); });
-    S.subscribers.forEach(function (r) { all.push({ d: r.created_at, k: 'Abonnee', t: r.email, go: ['nieuwsbrief', r.status] }); });
+    S.subscribers.forEach(function (r) { all.push({ d: r.created_at, k: 'Abonnee', t: r.email + (r.province ? ' (' + provName(r.province) + ')' : ''), go: ['nieuwsbrief', r.status] }); });
     all.sort(function (a, b) { return a.d < b.d ? 1 : -1; });
     var ul = clear($('recent'));
     if (!all.length) ul.appendChild(el('li', { class: 'empty', text: 'Nog niets binnengekomen. Zodra iemand een formulier op de site invult, zie je het hier.' }));
@@ -324,32 +324,53 @@
   }
 
   /* ---------- nieuwsbrief ---------- */
+  var PROV = [['groningen', 'Groningen'], ['friesland', 'Friesland'], ['drenthe', 'Drenthe'], ['overijssel', 'Overijssel'], ['flevoland', 'Flevoland'], ['gelderland', 'Gelderland'],
+    ['utrecht', 'Utrecht'], ['noord-holland', 'Noord-Holland'], ['zuid-holland', 'Zuid-Holland'], ['zeeland', 'Zeeland'], ['noord-brabant', 'Noord-Brabant'], ['limburg', 'Limburg'], ['geen', 'Geen voorkeur']];
+  function provName(v) { for (var i = 0; i < PROV.length; i++) if (PROV[i][0] === v) return PROV[i][1]; return v ? v : 'Niet ingevuld'; }
+  (function () {
+    var sel = $('sb-prov');
+    sel.appendChild(el('option', { value: 'alle', text: 'Alle provincies' }));
+    PROV.forEach(function (p) { sel.appendChild(el('option', { value: p[0], text: p[1] })); });
+    sel.appendChild(el('option', { value: 'leeg', text: 'Niet ingevuld' }));
+    sel.addEventListener('change', function () { S.sbp = sel.value; render(); });
+  })();
   function subRows() {
     var qq = q('sb-q');
-    return S.subscribers.filter(function (r) { return (S.sbs === 'alle' || r.status === S.sbs) && (!qq || r.email.indexOf(qq) >= 0 || (r.source || '').toLowerCase().indexOf(qq) >= 0); });
+    return S.subscribers.filter(function (r) { return (S.sbs === 'alle' || r.status === S.sbs) && (S.sbp === 'alle' || (S.sbp === 'leeg' ? !r.province : r.province === S.sbp)) && (!qq || r.email.indexOf(qq) >= 0 || (r.source || '').toLowerCase().indexOf(qq) >= 0 || provName(r.province).toLowerCase().indexOf(qq) >= 0); });
   }
   function subscribers() {
     var cnt = function (s) { return S.subscribers.filter(function (r) { return s === 'alle' || r.status === s; }).length; };
     seg($('sb-seg'), [['actief', 'Actief (' + cnt('actief') + ')'], ['afgemeld', 'Afgemeld (' + cnt('afgemeld') + ')'], ['alle', 'Alles (' + cnt('alle') + ')']], S.sbs, function (v) { S.sbs = v; });
     var rows = subRows(), tb = clear($('sb-rows'));
-    if (!rows.length) tb.appendChild(el('tr', null, el('td', { colspan: '6', class: 'muted', text: 'Geen abonnees in deze selectie.' })));
+    if (!rows.length) tb.appendChild(el('tr', null, el('td', { colspan: '7', class: 'muted', text: 'Geen abonnees in deze selectie.' })));
     rows.forEach(function (r) {
       var act = el('td');
       act.appendChild(el('button', { type: 'button', class: 'link', text: r.status === 'actief' ? 'Afmelden' : 'Weer actief', onclick: function () { update('subscribers', r, r.status === 'actief' ? { status: 'afgemeld', unsubscribed_at: new Date().toISOString() } : { status: 'actief', unsubscribed_at: null }, r.status === 'actief' ? 'Afgemeld.' : 'Weer actief.'); } }));
       act.appendChild(document.createTextNode('  '));
       act.appendChild(confirmBtn('Verwijderen', 'link del', function () { remove('subscribers', r, 'Adres verwijderd.'); }));
-      tb.appendChild(el('tr', null, el('td', { text: r.email }), el('td', { text: dshort(r.created_at) }), el('td', { text: r.source || '' }), el('td', { text: r.lang === 'en' ? 'Engels' : 'Nederlands' }), el('td', null, pill(r.status)), act));
+      tb.appendChild(el('tr', null, el('td', { text: r.email }), el('td', { class: r.province ? '' : 'muted', text: provName(r.province) }), el('td', { text: dshort(r.created_at) }), el('td', { text: r.source || '' }), el('td', { text: r.lang === 'en' ? 'Engels' : 'Nederlands' }), el('td', null, pill(r.status)), act));
     });
     $('sb-foot').textContent = rows.length + (rows.length === 1 ? ' adres' : ' adressen') + ' in deze selectie.';
+    $('sb-prov').value = S.sbp;
+    // actieve abonnees per voorkeursprovincie; klik filtert de lijst
+    var pc = clear($('sb-provs')), act = S.subscribers.filter(function (r) { return r.status === 'actief'; });
+    var cnts = PROV.concat([['leeg', 'Niet ingevuld']]).map(function (p) { return [p[0], p[1], act.filter(function (r) { return p[0] === 'leeg' ? !r.province : r.province === p[0]; }).length]; })
+      .filter(function (c) { return c[2] > 0 || c[0] !== 'leeg'; }).sort(function (a, b) { return b[2] - a[2]; });
+    var mx = Math.max.apply(null, cnts.map(function (c) { return c[2]; }).concat([1]));
+    cnts.forEach(function (c) {
+      var bar = el('i'); bar.style.width = Math.round(c[2] / mx * 100) + '%';
+      pc.appendChild(el('button', { type: 'button', class: 'pv' + (S.sbp === c[0] ? ' on' : ''), 'aria-pressed': String(S.sbp === c[0]), title: 'Toon alleen ' + c[1], onclick: function () { S.sbp = S.sbp === c[0] ? 'alle' : c[0]; render(); } },
+        el('span', { text: c[1] }), el('span', { class: 'track' }, bar), el('b', { text: String(c[2]) })));
+    });
   }
   function activeInView() { return subRows().filter(function (r) { return r.status === 'actief'; }); }
   $('sb-csv').addEventListener('click', function () {
     var rows = activeInView();
     if (!rows.length) { toast('Er zijn geen actieve abonnees in deze selectie.'); return; }
     var esc = function (s) { s = String(s == null ? '' : s); if (/^[=+\-@\s]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
-    var csv = '﻿email;ingeschreven;pagina;taal\r\n' + rows.map(function (r) { return [r.email, r.created_at.slice(0, 10), r.source, r.lang].map(esc).join(';'); }).join('\r\n');
+    var csv = '﻿email;provincie;ingeschreven;pagina;taal\r\n' + rows.map(function (r) { return [r.email, provName(r.province), r.created_at.slice(0, 10), r.source, r.lang].map(esc).join(';'); }).join('\r\n');
     var url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-    var a = el('a', { href: url, download: 'nieuwsbrief-abonnees-' + new Date().toISOString().slice(0, 10) + '.csv' });
+    var a = el('a', { href: url, download: 'nieuwsbrief-abonnees-' + (S.sbp !== 'alle' ? S.sbp + '-' : '') + new Date().toISOString().slice(0, 10) + '.csv' });
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
     toast(rows.length + ' adressen gedownload.');
   });

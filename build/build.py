@@ -25,7 +25,13 @@ _own = os.path.join(HERE, 'data', 'own.json')
 OWN = json.load(open(_own)) if os.path.exists(_own) else {}
 for _l in LOCS:
     if _l['id'] in OWN: _l.update(OWN[_l['id']])
-PBY = {p['id']: p for p in PROVS}
+# uitgebreide adresteksten: onze beoordeling, secties en veelgestelde vragen
+_cnt = os.path.join(HERE, 'data', 'content.json')
+CONTENT = json.load(open(_cnt)) if os.path.exists(_cnt) else {}
+for _l in LOCS:
+    if _l['id'] in CONTENT: _l.update({k: v for k, v in CONTENT[_l['id']].items() if k in ('meta', 'tag', 'kort', 'rev', 'secs', 'faq', 'let')})
+SECNAV = {'eten': ('Dineren', 'Dining'), 'slapen': ('Overnachten', 'Staying'), 'pand': ('Het pand', 'The building'), 'omgeving': ('Ligging en omgeving', 'Location and surroundings'), 'voorwie': ('Voor wie', 'Who it suits')}
+PBY ={p['id']: p for p in PROVS}
 LBY = {l['id']: l for l in LOCS}
 CSS = open(os.path.join(HERE, 'style.css')).read()
 CSS = re.sub(r'\s*\n\s*', '', CSS)
@@ -255,8 +261,7 @@ def badges(l, lang):
     for o in l.get('other') or []: b.append(('', o))
     return b
 def chips(l, lang, n=4):
-    been = ('<span class="chip been">%s</span>' % ('Zelf geweest' if lang == 'nl' else 'Visited by us')) if l.get('visited') else ''
-    return '<div class="chips">' + been + ''.join('<span class="chip %s">%s</span>' % (c, esc(t)) for c, t in badges(l, lang)[:n]) + '</div>'
+    return '<div class="chips">' + ''.join('<span class="chip %s">%s</span>' % (c, esc(t)) for c, t in badges(l, lang)[:n]) + '</div>'
 
 # ---------- layout ----------
 T = {
@@ -292,7 +297,7 @@ def footer(lang):
              if lang == 'nl' else '<li><a href="/zo-kiezen-wij/">How we choose (Dutch)</a></li><li><a href="/beeldverantwoording/">Image credits</a></li><li><a href="/privacy/">Privacy</a></li><li><a href="/contact/">Contact (Dutch)</a></li><li><a href="mailto:%s">%s</a></li>' % (MAIL, MAIL))
     cols = ('<div><p style="font:600 28px/1 var(--disp);color:var(--c);margin:0 0 12px">Dineren <i style="color:var(--gold);font-weight:500">&amp;</i> Slapen</p><p>%s</p>%s</div>'
             '<nav aria-label="%s"><h2>%s</h2><ul class="two">%s</ul></nav><nav aria-label="%s"><h2>%s</h2><ul>%s</ul></nav>') % (
-        t['nlText'], newsletter_form(lang, 'ft', compact=True), t['perprov'], t['perprov'], provs, t['lists'], t['lists'], lists)
+        t['nlText'], newsletter_form(lang, 'ft', compact=True) + (follow_links(lang) if 'follow_links' in globals() else ''), t['perprov'], t['perprov'], provs, t['lists'], t['lists'], lists)
     if lang == 'nl': cols += '<nav aria-label="Verhalen"><h2>Verhalen</h2><ul>%s</ul></nav>' % blog
     cols += '<nav aria-label="%s"><h2>%s</h2><ul>%s</ul></nav>' % (t['about'], t['about'], about)
     return '<footer class="ft"><div class="wrap"><div class="cols">%s</div><div class="base"><span>© 2026 dinerenenslapen.nl</span><span>%s</span></div></div></footer>' % (
@@ -325,6 +330,7 @@ def page(path, lang, title, desc, body, active='', alt=None, ld=None, og=None, p
         if 'nl' in alt: links += '<link rel="alternate" hreflang="x-default" href="%s%s">' % (SITE, alt['nl'])
     graph = [ORG, {'@type': 'WebSite', '@id': SITE + '/#site', 'url': SITE + '/', 'name': 'Dineren en Slapen', 'inLanguage': 'nl-NL', 'publisher': {'@id': SITE + '/#org'}}] + (ld or [])
     ogimg = og or SITE + '/og.jpg'
+    if 'share_strip' in globals() and not noindex and prio >= 0.4 and path not in ('/', '/en/'): body = body + share_strip(path, title, lang, ogimg)
     pre = '<link rel="preload" href="/fonts/cormorant-garamond-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/source-serif-4-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>'
     if preload_img: pre += preload_img
     doc = ('<!doctype html><html lang="%s" class="nojs"><head><meta charset="utf-8"><script>document.documentElement.className="js"</script><meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -336,6 +342,7 @@ def page(path, lang, title, desc, body, active='', alt=None, ld=None, og=None, p
         lang, esc(title), esc(desc), SITE, path, links, pre, 'noindex,follow' if noindex else 'index,follow,max-image-preview:large', ptype, 'nl_NL' if lang == 'nl' else 'en_GB',
         esc(title), esc(desc), SITE, path, esc(ogimg), CSS, json.dumps({'@context': 'https://schema.org', '@graph': graph}, ensure_ascii=False).replace('</', '<\\/'),
         header(lang, active, alt), body, footer(lang), JS + extra_js)
+    if 'nb_preselect' in globals(): doc = nb_preselect(doc, path)
     fp = os.path.join(OUT, path.lstrip('/'), 'index.html') if path.endswith('/') else os.path.join(OUT, path.lstrip('/'))
     os.makedirs(os.path.dirname(fp), exist_ok=True)
     open(fp, 'w').write(doc)
@@ -446,12 +453,20 @@ def build_loc(l, lang):
         crumbs(items), esc(l['type'][lang]), esc(l['name']), esc(l['place']), esc(pn), ('nummer' if nl else 'number'), RANK[l['id']], chips(l, lang, 6), esc(l['tag'][lang]),
         esc(l['web']), ('Naar ' if nl else 'Visit ') + esc(host), 'Lees ons verslag' if nl else 'Read our review',
         pic(l['img'], l['name'] + ', ' + l['place'], '(max-width: 760px) 100vw, 640px', lazy=False, prio=True, cls='framed'), cred)
-    paras = ''.join('<p>%s</p>' % esc(p) for p in l['rev'][lang].split('\n\n') if p.strip())
-    let = ('<div class="note"><p class="k" style="margin-bottom:6px">%s</p><p>%s</p></div>' % ('Goed om te weten' if nl else 'Good to know', esc(l['let'][lang]))) if l.get('let') else ''
+    def paras_of(t): return ''.join('<p>%s</p>' % esc(p) for p in t.split('\n\n') if p.strip())
+    secs = l.get('secs') or []
+    paras = paras_of(l['rev'][lang]) + ''.join('<h2 id="%s" style="margin-top:38px">%s</h2>%s' % (s['k'], esc(s['h'][lang]), paras_of(s['t'][lang])) for s in secs)
+    faq = [(f['q'][lang], f['a'][lang]) for f in (l.get('faq') or [])]
+    toc = ''.join('<li><a href="#%s">%s</a></li>' % (s['k'], SECNAV[s['k']][0 if nl else 1]) for s in secs if s['k'] in SECNAV)
+    if faq: toc += '<li><a href="#vragen">%s</a></li>' % ('Veelgestelde vragen' if nl else 'Frequently asked questions')
+    if toc:
+        odp = 'Op deze pagina' if nl else 'On this page'
+        toc = '<nav class="toc" aria-label="%s"><p class="k">%s</p><ul><li><a href="#verslag">%s</a></li>%s<li><a href="#praktisch">%s</a></li></ul></nav>' % (
+            odp, odp, 'Onze beoordeling' if nl else 'Our verdict', toc, 'Prijs en praktisch' if nl else 'Price and practicalities')
+    let =('<div class="note"><p class="k" style="margin-bottom:6px">%s</p><p>%s</p></div>' % ('Goed om te weten' if nl else 'Good to know', esc(l['let'][lang]))) if l.get('let') else ''
     facts = price_facts(l, lang)
     if l.get('rooms'): facts.append(('Kamers' if nl else 'Rooms', l['rooms'][lang]))
     if l.get('people'): facts.append(('Aan het roer' if nl else 'In charge', l['people']))
-    if l.get('visited'): facts.insert(0, ('Wij waren er' if nl else 'Our visits', l['visited'][lang]))
     facts.append(('Ligging' if nl else 'Location', '%s, %s' % (l['place'], pn)))
     facts.append(('Reserveren' if nl else 'Booking', ('Rechtstreeks via ' if nl else 'Directly via ') + host))
     dl = ''.join('<dt>%s</dt><dd>%s</dd>' % (esc(k), esc(v)) for k, v in facts)
@@ -462,13 +477,14 @@ def build_loc(l, lang):
         ('p', 'Prijs' if nl else 'Price', 'Hoe hoger, hoe vriendelijker de prijs voor twee.' if nl else 'The higher, the kinder the price for two.')))
     h += ('<section class="sec" id="verslag"><div class="wrap split">'
           '<div class="stack prose" style="min-width:0;max-width:760px"><p class="k">%s</p><h2>%s</h2>%s%s'
-          '<h2 style="margin-top:34px">%s</h2><dl class="facts">%s</dl><p class="meta">%s</p></div>'
+          '<h2 id="praktisch" style="margin-top:38px">%s</h2><dl class="facts">%s</dl><p class="meta">%s</p></div>'
           '<aside class="stack" style="min-width:0"><div style="display:flex;gap:16px;align-items:center"><span class="score" style="width:92px;height:92px"><b style="font-size:36px">%s</b><small>%s</small></span><p class="meta">%s</p></div><div class="bars" style="grid-template-columns:1fr">%s</div>%s</aside></div></section>') % (
-        'Uit ons dagboek' if nl else 'From our diary', ('Dineren en slapen bij ' if nl else 'Dining and staying at ') + esc(l['name']), paras, let,
+        'Onze beoordeling' if nl else 'Our verdict', ('Dineren en slapen bij ' if nl else 'Dining and staying at ') + esc(l['name']), paras, let,
         'Prijs en praktisch' if nl else 'Price and practicalities', dl,
         'Gerekend met hun eigen site en boekingssysteem, voor een doordeweekse nacht in november 2026. Kijk voor jouw datum bij het adres zelf.' if nl else 'Worked out from their own website and booking system for a weeknight in November 2026. Check your own date with the address.',
         num(total(l), lang), T[lang]['ourscore'], (('Nummer %d van de %d adressen in Nederland, nummer %d in %s.' if nl else 'Number %d of %d addresses in the Netherlands, number %d in %s.') % (RANK[l['id']], len(LOCS), in_prov(l['prov']).index(l) + 1, pn)), bars,
-        svg_map(lang, only=l['prov']))
+        ('<div><p class="k" style="margin-bottom:10px">%s</p>%s</div>' % ('Deel dit adres' if nl else 'Share this address', share_links(u_loc(l, lang), l['name'] + (' in ' if nl else ' in ') + l['place'] + (' | Dineren en Slapen'), lang, l.get('ogimg')))) + toc + svg_map(lang, only=l['prov']))
+    if faq: h += '<section class="sec white" id="vragen"><div class="narrow">%s</div></section>' % faq_html(faq, title=('Veelgestelde vragen over ' if nl else 'Frequently asked questions about ') + l['name'])
     h += gallery_section(l, lang) + reviews_section(l, lang)
     # interne links
     ex = ''
@@ -491,13 +507,14 @@ def build_loc(l, lang):
     desc = '%s. %s%s %s.' % (tag, (stars(l['ms'], lang) + (', ' if nl else ', ')) if l['ms'] else '', ('voor twee ca. ' if nl else 'for two approx. ') + eur(l['pz']['p2'], lang) if l['ms'] else (('Voor twee ca. ' if nl else 'For two approx. ') + eur(l['pz']['p2'], lang)), 'met diner en ontbijt, ons verslag en cijfers' if nl else 'with dinner and breakfast, our review and scores')
     if len(desc) > 158: desc = '%s. %s %s.' % (tag, ('Voor twee ca. ' if nl else 'For two approx. ') + eur(l['pz']['p2'], lang), 'met diner en ontbijt' if nl else 'with dinner and breakfast')
     if len(desc) < 75: desc += ' ' + ('Ons verslag, onze cijfers en wat je kwijt bent.' if nl else 'Our review, our scores and the price.')
+    if l.get('meta'): desc = l['meta'][lang]
     biz = {'@type': ['LodgingBusiness', 'Restaurant'], '@id': SITE + u_loc(l, 'nl') + '#adres', 'name': l['name'], 'url': l['web'], 'sameAs': [l['web']],
            'image': og_img(l['img']), 'address': {'@type': 'PostalAddress', 'addressLocality': l['place'], 'addressRegion': P['name'], 'addressCountry': 'NL'},
            'geo': {'@type': 'GeoCoordinates', 'latitude': round(l['lat'], 5), 'longitude': round(l['lng'], 5)}, 'priceRange': '€' * l['pz']['cls'], 'servesCuisine': 'Fine dining' if l['ms'] else 'Modern',
            'review': {'@type': 'Review', 'author': {'@id': SITE + '/#org'}, 'publisher': {'@id': SITE + '/#org'}, 'datePublished': TODAY, 'inLanguage': 'nl-NL' if nl else 'en-GB',
                       'reviewRating': {'@type': 'Rating', 'ratingValue': num(total(l), 'en'), 'bestRating': '10', 'worstRating': '1'}, 'reviewBody': l['kort'][lang]}}
     if l['ms']: biz['award'] = stars(l['ms'], 'en') + ' (Michelin Guide Netherlands 2026)'
-    page(u_loc(l, lang), lang, title, desc, h, 'prov', {'nl': u_loc(l, 'nl'), 'en': u_loc(l, 'en')}, [ld_crumbs(items), biz], og=og_img(l['img']), prio=0.8, ptype='article')
+    page(u_loc(l, lang), lang, title, desc, h, 'prov', {'nl': u_loc(l, 'nl'), 'en': u_loc(l, 'en')}, [ld_crumbs(items), biz] + ([ld_faq(faq)] if faq else []), og=og_img(l['img']), prio=0.8, ptype='article')
 
 def build_top(lang):
     nl = lang == 'nl'; ls = ORDER[:10]
@@ -695,10 +712,13 @@ def write_static():
         if H / W > t: hh = int(W * t); im = im.crop((0, (H - hh) // 2, W, (H - hh) // 2 + hh))
         im.resize((1200, 630), Image.LANCZOS).save(os.path.join(OUT, 'og.jpg'), quality=82)
     shutil.copy(os.path.join(HERE, 'data', 'geo.js'), os.path.join(OUT, 'geo.js'))
+    os.makedirs(os.path.join(OUT, 'media'), exist_ok=True)
+    for f in os.listdir(os.path.join(HERE, 'media')): shutil.copy(os.path.join(HERE, 'media', f), os.path.join(OUT, 'media', f))
     open(os.path.join(OUT, 'CNAME'), 'w').write('dinerenenslapen.nl\n')
     open(os.path.join(OUT, '.nojekyll'), 'w').write('')
 
 exec(open(os.path.join(HERE, 'forms.py')).read())
+exec(open(os.path.join(HERE, 'social.py')).read())
 
 def main():
     keep_img = os.path.join(OUT, 'img')
