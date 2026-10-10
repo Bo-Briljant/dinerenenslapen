@@ -309,7 +309,7 @@ def ld_crumbs(items):
 
 ORG = {'@type': 'Organization', '@id': SITE + '/#org', 'name': 'Dineren en Slapen', 'url': SITE + '/', 'logo': SITE + '/icon-512.png'}
 
-def page(path, lang, title, desc, body, active='', alt=None, ld=None, og=None, prio=0.6, ptype='website', noindex=False, preload_img=None):
+def page(path, lang, title, desc, body, active='', alt=None, ld=None, og=None, prio=0.6, ptype='website', noindex=False, preload_img=None, extra_js=''):
     alt = alt or {lang: path}
     links = ''
     if len(alt) > 1 or lang == 'en':
@@ -327,7 +327,7 @@ def page(path, lang, title, desc, body, active='', alt=None, ld=None, og=None, p
            '<style>%s</style><script type="application/ld+json">%s</script></head><body>%s<main id="inhoud">%s</main>%s<script>%s</script></body></html>') % (
         lang, esc(title), esc(desc), SITE, path, links, pre, 'noindex,follow' if noindex else 'index,follow,max-image-preview:large', ptype, 'nl_NL' if lang == 'nl' else 'en_GB',
         esc(title), esc(desc), SITE, path, esc(ogimg), CSS, json.dumps({'@context': 'https://schema.org', '@graph': graph}, ensure_ascii=False).replace('</', '<\\/'),
-        header(lang, active, alt), body, footer(lang), JS)
+        header(lang, active, alt), body, footer(lang), JS + extra_js)
     fp = os.path.join(OUT, path.lstrip('/'), 'index.html') if path.endswith('/') else os.path.join(OUT, path.lstrip('/'))
     os.makedirs(os.path.dirname(fp), exist_ok=True)
     open(fp, 'w').write(doc)
@@ -352,7 +352,7 @@ def svg_map(lang, only=None, dots=True):
     if dots:
         for l in LOCS:
             if only and l['prov'] != only: continue
-            parts.append('<a href="%s" aria-label="%s"><circle class="d" cx="%.1f" cy="%.1f" r="%s"/></a>' % (u_loc(l, lang), esc(l['name']), l['x'], l['y'], '6' if only else '4.5'))
+            parts.append('<a href="%s" aria-label="%s"><circle class="d%s" cx="%.1f" cy="%.1f" r="%s"/></a>' % (u_loc(l, lang), esc(l['name']), ' b' if in_prov(l['prov'])[0] is l else '', l['x'], l['y'], '6' if only else '4.5'))
     vb = '0 0 %d %d' % (m['w'], m['h'])
     if only:
         bb = json.loads(PBY[only]['bb']) if isinstance(PBY[only]['bb'], str) else PBY[only]['bb']
@@ -384,50 +384,7 @@ def nearby(l, n=3):
     return sorted([x for x in LOCS if x['prov'] != l['prov']], key=lambda x: dist(l, x))[:n]
 
 # ================= pagina's =================
-def build_home(lang):
-    nl = lang == 'nl'; t = T[lang]
-    top3 = ORDER[:3]
-    h = ('<section class="dark hero"><div class="wrap grid">'
-         '<div class="txt"><p class="k">%s</p><h1>%s</h1><p class="sub">%s</p><p class="lead">%s</p><div class="links"><a class="btn" href="%s">%s</a><a href="#provincies">%s</a></div></div>'
-         '<figure>%s<figcaption>%s</figcaption></figure></div></section>') % (
-        'Editie 2026' if nl else '2026 edition',
-        'Restaurant met overnachting: waar wij eten en blijven slapen' if nl else 'Dine and stay the night: where we eat and sleep',
-        'Dineren en slapen onder één dak, in heel Nederland.' if nl else 'Dinner and a bed under one roof, all over the Netherlands.',
-        ('Wij gaan graag uit eten. En het liefst blijven we daarna slapen, zodat niemand hoeft te rijden en de avond niet ophoudt als de rekening komt. In dit boek staan %d adressen in twaalf provincies waar je eet en slaapt op hetzelfde adres, met wat je voor twee kwijt bent.' % len(LOCS)) if nl else
-        ('We love going out for dinner, and we like to stay the night afterwards so nobody has to drive. This book holds %d addresses in twelve provinces where you dine and sleep under one roof, with what it costs for two.' % len(LOCS)),
-        u_top(lang), 'Bekijk de top 10' if nl else 'See the top 10', 'Kies een provincie' if nl else 'Choose a province',
-        pic(D['img']['omslag'], 'Illustratie: een gedekte tafel bij het raam van een landhuis' if nl else 'Illustration: a laid table by the window of a country house', '(max-width: 760px) 100vw, 380px', lazy=False, prio=True, cls='framed'),
-        'Elk adres zelf uitgekozen. Geen ketens.' if nl else 'Every address chosen by us. No chains.')
-    # provincies + kaart
-    cards = ''
-    for p in PROV_ORDER:
-        ls = in_prov(p['id']); v = [l['pz']['p2'] for l in ls]
-        cards += '<a class="mini" href="%s">%s<span><b>%s</b><span>%s · %s %s %s %s</span></span></a>' % (
-            u_prov(p['id'], lang), pic(p['thumb'], '', '76px', widths=(480,)), esc(pname(p, lang)), ('%d adressen' if nl else '%d addresses') % len(ls), eur(min(v), lang), 'tot' if nl else 'to', eur(max(v), lang), 'voor twee' if nl else 'for two')
-    h += ('<section class="sec" id="provincies"><div class="wrap" style="display:grid;gap:34px"><div class="stack"><p class="k">%s</p><h2>%s</h2><p class="lead">%s</p></div>'
-          '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%%),1fr));gap:34px;align-items:start"><div class="minis" style="grid-template-columns:1fr">%s</div>%s</div></div></section>') % (
-        'Twaalf hoofdstukken' if nl else 'Twelve chapters', 'Restaurant met overnachting per provincie' if nl else 'Dine and stay by province',
-        'Per provincie hooguit vier adressen. Klik op een provincie of op een punt op de kaart.' if nl else 'Four addresses per province at most. Click a province or a dot on the map.',
-        cards, svg_map(lang))
-    # top 3
-    h += '<section class="sec alt"><div class="wrap" style="display:grid;gap:28px"><div class="stack"><p class="k">%s</p><h2>%s</h2></div><div class="cards">%s</div><p><a href="%s">%s</a></p></div></section>' % (
-        'Onze favorieten' if nl else 'Our favourites', 'De drie adressen waar wij het liefst heen gaan' if nl else 'The three places we love most', ''.join(loc_card(l, lang) for l in top3), u_top(lang), 'Bekijk de hele top 10' if nl else 'See the full top 10')
-    if nl:
-        h += '<section class="sec"><div class="wrap" style="display:grid;gap:28px"><div class="stack"><p class="k">Lijsten</p><h2>Waar heb je zin in?</h2></div><div class="minis">%s</div></div></section>' % ''.join(
-            '<a class="mini" href="/%s/">%s<span><b>%s</b><span>%d adressen</span></span></a>' % (th['slug'], pic(th['locs'][0].get('th') or th['locs'][0]['img'], '', '76px', widths=(480,)), esc(th['nav']), len(th['locs'])) for th in THEMES)
-        h += '<section class="sec alt"><div class="wrap" style="display:grid;gap:28px"><div class="stack"><p class="k">Verhalen</p><h2>Uit ons dagboek</h2></div><div class="cards">%s</div><p><a href="/verhalen/">Alle verhalen</a></p></div></section>' % ''.join(post_card(a) for a in POSTS[:3])
-        h += ('<section class="sec"><div class="narrow stack"><p class="k">Zo kiezen wij</p><h2>Eten en slapen op hetzelfde adres</h2><p class="lead">De regel is eenvoudig: je eet en je slaapt op hetzelfde adres. Na het dessert de trap op en klaar. We zoeken huizen met een eigen gezicht, een borg, een havezate, een molen, een herberg waar de eigenaar zelf in de zaak staat, en laten ketens liggen. Bij elk adres staan onze eigen cijfers voor eten, slapen en prijs, en wat je voor twee kwijt bent.</p>'
-              '<p class="links"><a href="/zo-kiezen-wij/">Lees hoe wij kiezen en cijfers geven</a><a href="/net-niet/">Adressen die het net niet haalden</a></p></div></section>')
-    faq = ([('Wat is een restaurant met overnachting?', 'Een restaurant waar je na het diner kunt blijven slapen, op hetzelfde adres. In dit boek staan alleen adressen waar je eet en slaapt onder één dak, geen hotels waar je voor het diner naar een andere deur moet.'),
-            ('Wat kost een diner met overnachting?', 'Op de %d adressen in dit boek ligt de middelste rekening rond de %s voor twee, voor diner, een nacht en ontbijt, zonder drank.' % (len(LOCS), eur(sorted(l['pz']['p2'] for l in LOCS)[len(LOCS) // 2]))),
-            ('Welk adres staat op nummer één?', '%s in %s, gevolgd door %s en %s.' % (ORDER[0]['name'], ORDER[0]['place'], ORDER[1]['name'], ORDER[2]['name']))] if nl else
-           [('What is a restaurant with rooms?', 'A restaurant where you can stay the night after dinner, at the same address. This book only lists places where you dine and sleep under one roof.'),
-            ('Which address is number one?', '%s in %s, followed by %s and %s.' % (ORDER[0]['name'], ORDER[0]['place'], ORDER[1]['name'], ORDER[2]['name']))])
-    h += '<section class="sec white"><div class="narrow">%s</div></section>' % faq_html(faq, title='Kort gezegd' if nl else 'In short')
-    title = 'Restaurant met overnachting: onze %d adressen (2026)' % len(LOCS) if nl else 'Restaurants with rooms in the Netherlands (2026)'
-    desc = ('Dineren en blijven slapen onder één dak: %d adressen in twaalf provincies, van borg tot sterrenrestaurant, met onze cijfers en wat je voor twee kwijt bent.' % len(LOCS)) if nl else \
-           ('Dine and stay the night under one roof: %d addresses in twelve Dutch provinces, from manor farm to Michelin star, with our scores and the price for two.' % len(LOCS))
-    page(u_home(lang), lang, title, desc, h, 'home', {'nl': '/', 'en': '/en/'}, [ld_faq(faq), ld_itemlist(ORDER[:10], lang)], og=og_img(D['img']['omslag']), prio=1.0)
+exec(open(os.path.join(HERE, 'home_book.py')).read())
 
 def build_prov(P, lang):
     nl = lang == 'nl'; pn = pname(P, lang); ls = in_prov(P['id'])
@@ -727,6 +684,7 @@ def write_static():
         im = Image.open(sp).convert('RGB'); W, H = im.size; t = 630 / 1200
         if H / W > t: hh = int(W * t); im = im.crop((0, (H - hh) // 2, W, (H - hh) // 2 + hh))
         im.resize((1200, 630), Image.LANCZOS).save(os.path.join(OUT, 'og.jpg'), quality=82)
+    shutil.copy(os.path.join(HERE, 'data', 'geo.js'), os.path.join(OUT, 'geo.js'))
     open(os.path.join(OUT, 'CNAME'), 'w').write('dinerenenslapen.nl\n')
     open(os.path.join(OUT, '.nojekyll'), 'w').write('')
 
