@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src https://__DB_HOST__; form-action 'none'; base-uri 'none'">
+<title>Beheer | Dineren &amp; Slapen</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><b>Dineren <i>&amp;</i> Slapen</b><span>Beheer</span></div>
+  <div class="who" id="who" hidden><span id="who-mail"></span><button type="button" class="link light" id="logout">Uitloggen</button></div>
+</header>
+
+<main id="login" class="login" hidden>
+  <section class="box" id="box-login">
+    <h1>Inloggen</h1>
+    <p class="muted">Alleen voor de redactie van Dineren &amp; Slapen.</p>
+    <form id="f-login" autocomplete="on">
+      <label>E-mailadres<input id="l-mail" type="email" autocomplete="username" required></label>
+      <label>Wachtwoord<input id="l-pass" type="password" autocomplete="current-password" required></label>
+      <button class="btn" type="submit">Inloggen</button>
+      <p class="msg" id="l-msg" role="alert" hidden></p>
+    </form>
+    <button type="button" class="link" id="l-forgot">Wachtwoord vergeten?</button>
+  </section>
+  <section class="box" id="box-reset" hidden>
+    <h1>Nieuw wachtwoord</h1>
+    <p class="muted">Kies een wachtwoord van minstens 12 tekens.</p>
+    <form id="f-reset">
+      <label>Nieuw wachtwoord<input id="r-pass" type="password" autocomplete="new-password" minlength="12" required></label>
+      <label>Nog een keer<input id="r-pass2" type="password" autocomplete="new-password" minlength="12" required></label>
+      <button class="btn" type="submit">Opslaan en inloggen</button>
+      <p class="msg" id="r-msg" role="alert" hidden></p>
+    </form>
+  </section>
+</main>
+
+<div id="app" class="app" hidden>
+  <nav class="tabs" aria-label="Onderdelen">
+    <button type="button" class="tab on" data-tab="overzicht">Overzicht</button>
+    <button type="button" class="tab" data-tab="reviews">Reviews <span class="badge" id="b-reviews" hidden></span></button>
+    <button type="button" class="tab" data-tab="berichten">Berichten <span class="badge" id="b-berichten" hidden></span></button>
+    <button type="button" class="tab" data-tab="nieuwsbrief">Nieuwsbrief <span class="count" id="b-nieuwsbrief"></span></button>
+    <span class="grow"></span>
+    <span class="stamp" id="stamp"></span>
+    <button type="button" class="link" id="refresh">Vernieuwen</button>
+  </nav>
+
+  <section class="view" id="v-overzicht">
+    <div class="tiles" id="tiles"></div>
+    <div class="cols">
+      <div class="panel"><h2>Nieuwe abonnees per week</h2><p class="muted small">De afgelopen twaalf weken</p><div class="bars" id="chart"></div></div>
+      <div class="panel"><h2>Laatst binnengekomen</h2><ul class="recent" id="recent"></ul></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-reviews" hidden>
+    <div class="bar">
+      <div class="seg" role="group" aria-label="Status" id="rv-seg"></div>
+      <input class="search" id="rv-q" type="search" placeholder="Zoek op adres, naam of tekst" aria-label="Zoek in reviews">
+    </div>
+    <p class="hint">Een goedgekeurde review staat meteen op de pagina van het adres, met voornaam, maand, cijfers en tekst. Het e-mailadres blijft altijd privé.</p>
+    <div class="list" id="rv-list"></div>
+  </section>
+
+  <section class="view" id="v-berichten" hidden>
+    <div class="bar">
+      <div class="seg" role="group" aria-label="Status" id="ms-seg"></div>
+      <div class="seg" role="group" aria-label="Soort" id="ms-kind"></div>
+      <input class="search" id="ms-q" type="search" placeholder="Zoek in berichten" aria-label="Zoek in berichten">
+    </div>
+    <div class="list" id="ms-list"></div>
+  </section>
+
+  <section class="view" id="v-nieuwsbrief" hidden>
+    <div class="bar">
+      <div class="seg" role="group" aria-label="Status" id="sb-seg"></div>
+      <input class="search" id="sb-q" type="search" placeholder="Zoek op e-mailadres" aria-label="Zoek abonnees">
+      <span class="grow"></span>
+      <button type="button" class="btn ghost" id="sb-copy">Kopieer adressen</button>
+      <button type="button" class="btn" id="sb-csv">Download CSV</button>
+    </div>
+    <p class="hint">De download bevat de actieve abonnees in de huidige selectie. Zet die lijst in je mailprogramma, bijvoorbeeld Brevo of Mailchimp. Meldt iemand zich daar af, zet hem hier dan ook op afgemeld.</p>
+    <div class="tablewrap"><table class="tbl"><thead><tr><th>E-mailadres</th><th>Ingeschreven</th><th>Via pagina</th><th>Taal</th><th>Status</th><th><span class="sr">Acties</span></th></tr></thead><tbody id="sb-rows"></tbody></table></div>
+    <p class="muted small" id="sb-foot"></p>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<noscript><p class="box">Zet JavaScript aan om de beheeromgeving te gebruiken.</p></noscript>
+<script src="supabase.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

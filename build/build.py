@@ -280,8 +280,8 @@ def footer(lang):
     if lang == 'nl':
         lists += ''.join('<li><a href="/%s/">%s</a></li>' % (th['slug'], th['nav']) for th in THEMES)
         blog = ''.join('<li><a href="%s">%s</a></li>' % (u_post(a['slug']), esc(a['title']['nl'])) for a in POSTS[:4])
-    about = ('<li><a href="/zo-kiezen-wij/">Zo kiezen wij en onze cijfers</a></li><li><a href="/zo-kiezen-wij/#tip">Tip ons een adres</a></li><li><a href="/net-niet/">Net niet: in de nieuwsbrief</a></li><li><a href="/verhalen/">Alle verhalen</a></li><li><a href="/beeldverantwoording/">Beeldverantwoording</a></li><li><a href="/privacy/">Privacy</a></li><li><a href="mailto:%s">%s</a></li>' % (MAIL, MAIL)
-             if lang == 'nl' else '<li><a href="/zo-kiezen-wij/">How we choose (Dutch)</a></li><li><a href="/beeldverantwoording/">Image credits</a></li><li><a href="/privacy/">Privacy</a></li><li><a href="mailto:%s">%s</a></li>' % (MAIL, MAIL))
+    about = ('<li><a href="/zo-kiezen-wij/">Zo kiezen wij en onze cijfers</a></li><li><a href="/zo-kiezen-wij/#tip">Tip ons een adres</a></li><li><a href="/net-niet/">Net niet: in de nieuwsbrief</a></li><li><a href="/verhalen/">Alle verhalen</a></li><li><a href="/beeldverantwoording/">Beeldverantwoording</a></li><li><a href="/privacy/">Privacy</a></li><li><a href="/contact/">Contact</a></li><li><a href="mailto:%s">%s</a></li>' % (MAIL, MAIL)
+             if lang == 'nl' else '<li><a href="/zo-kiezen-wij/">How we choose (Dutch)</a></li><li><a href="/beeldverantwoording/">Image credits</a></li><li><a href="/privacy/">Privacy</a></li><li><a href="/contact/">Contact (Dutch)</a></li><li><a href="mailto:%s">%s</a></li>' % (MAIL, MAIL))
     cols = ('<div><p style="font:600 28px/1 var(--disp);color:var(--c);margin:0 0 12px">Dineren <i style="color:var(--gold);font-weight:500">&amp;</i> Slapen</p><p>%s</p>%s</div>'
             '<nav aria-label="%s"><h2>%s</h2><ul class="two">%s</ul></nav><nav aria-label="%s"><h2>%s</h2><ul>%s</ul></nav>') % (
         t['nlText'], newsletter_form(lang, 'ft', compact=True), t['perprov'], t['perprov'], provs, t['lists'], t['lists'], lists)
@@ -460,6 +460,7 @@ def build_loc(l, lang):
         'Gerekend met hun eigen site en boekingssysteem, voor een doordeweekse nacht in november 2026. Kijk voor jouw datum bij het adres zelf.' if nl else 'Worked out from their own website and booking system for a weeknight in November 2026. Check your own date with the address.',
         num(total(l), lang), T[lang]['ourscore'], (('Nummer %d van de %d adressen in Nederland, nummer %d in %s.' if nl else 'Number %d of %d addresses in the Netherlands, number %d in %s.') % (RANK[l['id']], len(LOCS), in_prov(l['prov']).index(l) + 1, pn)), bars,
         svg_map(lang, only=l['prov']))
+    h += reviews_section(l, lang)
     # interne links
     ex = ''
     sib = [x for x in in_prov(l['prov']) if x is not l]
@@ -595,12 +596,12 @@ def build_keur():
             ('Gault&Millau', '%d adressen' % gms, 'Punten op een schaal van twintig. Vanaf ongeveer veertien is het een adres om voor om te rijden.')]
     h += '<section class="sec alt" id="keurmerken"><div class="narrow stack"><p class="k">Van de gidsen</p><h2>De keurmerken, in gewone taal</h2><p class="lead">Labels van de gidsen nemen we over zoals ze zijn, volgens de edities van 2026. Wij delen ze niet uit.</p><table class="t"><thead><tr><th>Keurmerk</th><th>In dit boek</th><th>Wat het betekent</th></tr></thead><tbody>%s</tbody></table></div></section>' % ''.join('<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % x for x in labs)
     h += ('<section class="sec" id="tip"><div class="narrow stack"><p class="k">Tip ons</p><h2>Ken jij een adres?</h2><p>Stuur ons je tip, met een regel erbij waarom we erheen moeten. Dan gaan we kijken. Of het daarna in het boek komt, hangt af van hoe het was.</p>'
-          '<div><form class="js-form" data-kind="tip" method="post" action="%s" style="display:grid;gap:14px;font:400 15px var(--sans)">'
-          '<input type="hidden" name="_subject" value="Tip: nieuw adres"><input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off"><label>Naam van het adres<input class="inp" style="width:100%%" name="adres" required></label><label>Plaats<input class="inp" style="width:100%%" name="plaats" required></label>'
+          '<div class="fwrap"><form class="js-form" data-kind="tip" action="%s" style="display:grid;gap:14px;font:400 15px var(--sans)">'
+          + HONEY + '<label>Naam van het adres<input class="inp" style="width:100%%" name="adres" required minlength="2" maxlength="160"></label><label>Plaats<input class="inp" style="width:100%%" name="plaats" required maxlength="120"></label>'
           '<label>Provincie<select class="inp" style="width:100%%" name="provincie"><option value="">Kies een provincie</option>%s</select></label>'
-          '<label>Waarom moeten we erheen?<textarea class="inp" style="width:100%%;height:110px;padding:12px" name="waarom"></textarea></label>'
-          '<label>Je e-mailadres (niet verplicht)<input class="inp" style="width:100%%" type="email" name="email" autocomplete="email"></label><button class="btn" type="submit" style="justify-self:start">Verstuur je tip</button></form>'
-          '<p class="thanks" role="status">Dank voor je tip. We gaan kijken.</p></div><p class="meta">Liever mailen? Dat kan op <a href="mailto:dinerenenslapen@gmail.com">dinerenenslapen@gmail.com</a>.</p></div></section>') % (esc(FORM_ENDPOINT or '#'), prov_opts)
+          '<label>Waarom moeten we erheen?<textarea class="inp" style="width:100%%;height:110px;padding:12px" name="waarom" maxlength="5000"></textarea></label>'
+          '<label>Je e-mailadres (niet verplicht)<input class="inp" style="width:100%%" type="email" name="email" maxlength="200" autocomplete="email"></label><button class="btn" type="submit" style="justify-self:start">Verstuur je tip</button></form>' + ferr() +
+          '<p class="thanks" role="status">Dank voor je tip. We gaan kijken.</p></div><p class="meta">Liever mailen? Dat kan op <a href="mailto:dinerenenslapen@gmail.com">dinerenenslapen@gmail.com</a>.</p></div></section>') % ('#', prov_opts)
     faq = [('Tellen reviews van anderen mee in jullie cijfer?', 'Nee. Ons cijfer is van onszelf. Wat anderen schrijven, lezen we graag, maar het telt niet mee.'),
            ('Waarom staat het goedkoopste adres niet bovenaan?', 'Omdat prijs één van de drie cijfers is, en omdat het cijfer voor prijs gaat over wat je ervoor krijgt.'),
            ('Waarom staat een hotel met een goed restaurant ernaast er niet in?', 'Omdat je in dit boek eet en slaapt op hetzelfde adres. Moet je voor het diner door een andere deur, dan valt het af.'),
@@ -652,7 +653,7 @@ def write_static():
         if len(alt) > 1 and 'nl' in alt: al += '<xhtml:link rel="alternate" hreflang="x-default" href="%s%s"/>' % (SITE, alt['nl'])
         urls.append('<url><loc>%s%s</loc><lastmod>%s</lastmod><priority>%.1f</priority>%s</url>' % (SITE, path, TODAY, prio, al))
     open(os.path.join(OUT, 'sitemap.xml'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n' + '\n'.join(urls) + '\n</urlset>\n')
-    open(os.path.join(OUT, 'robots.txt'), 'w').write('User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n' % SITE)
+    open(os.path.join(OUT, 'robots.txt'), 'w').write('User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: %s/sitemap.xml\n' % SITE)
     # llms.txt
     L = ['# Dineren en Slapen', '', '> Onafhankelijke Nederlandse gids van restaurants met overnachting: adressen waar je dineert en blijft slapen onder één dak. %d adressen in twaalf provincies, met eigen cijfers voor eten, slapen en prijs, en een prijs voor twee (diner, een nacht en ontbijt, gecheckt in hun eigen boekingssysteem voor een doordeweekse nacht in november 2026).' % len(LOCS), '',
          'Regels: eten en slapen op hetzelfde adres, geen ketens, hooguit vier adressen per provincie. Een plek in het boek is niet te koop.', '', '## Belangrijkste pagina\'s', '',
@@ -688,6 +689,8 @@ def write_static():
     open(os.path.join(OUT, 'CNAME'), 'w').write('dinerenenslapen.nl\n')
     open(os.path.join(OUT, '.nojekyll'), 'w').write('')
 
+exec(open(os.path.join(HERE, 'forms.py')).read())
+
 def main():
     keep_img = os.path.join(OUT, 'img')
     if os.path.exists(OUT):
@@ -700,7 +703,8 @@ def main():
     for th in THEMES: build_theme(th)
     build_blog_index()
     for a in POSTS: build_post(a)
-    build_keur(); build_net(); build_credits(); build_privacy(); build_404()
+    build_keur(); build_net(); build_credits(); build_privacy(); build_contact(); build_404()
+    write_admin()
     write_static()
     print('pagina\'s:', len(PAGES), '| thema\'s:', [(t['slug'], len(t['locs'])) for t in THEMES])
     for i in ISSUES: print('  !', i)

@@ -355,4 +355,31 @@ footer.ft .base{border-top:1px solid #2A3A33;margin-top:44px;padding-top:20px;di
 }
 @media (max-width:1200px) and (min-width:761px){.cover{width:118px;height:152px}.intro{gap:20px}}
 @media (max-height:820px) and (min-width:901px){.intro h1{font-size:34px}.intro p{font-size:15px;line-height:1.5}.cover{width:110px;height:141px}.toc2{min-height:36px;padding:5px 0 4px}.toc2 .tn{font-size:20px}.pgr,.pgl{padding-top:14px;padding-bottom:12px}.pane{gap:10px}}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.ferr{margin:10px 0 0;padding:10px 14px;border-left:3px solid var(--wine);background:#F6E9E9;color:#5E1A22;font:400 14.5px/1.45 var(--sans)}
+.ferr[hidden]{display:none}
+.dark .ferr{background:#3A1E22;color:#F6D9DC}
+.btn:disabled{opacity:.6;cursor:wait}
+.rvlist{display:grid;gap:0;border-top:1px solid var(--line)}
+.rv{padding:18px 0;border-bottom:1px solid var(--line);display:grid;gap:6px}
+.rvh{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline}
+.rvh b{font:600 22px var(--disp)}.rvh span{font:400 13.5px var(--sans);color:var(--mute)}
+.rvs{font:500 13px var(--sans);color:var(--gold2);letter-spacing:.02em}
+.rv p{font-size:17px;color:var(--ink2);white-space:pre-line}
+.rvform details{background:var(--c);border:1px solid var(--line);padding:20px}
+.rvform summary{list-style:none;cursor:pointer;width:100%}
+.rvform summary::-webkit-details-marker{display:none}
+.ghost2{background:transparent;border:1px solid var(--ink);color:var(--ink)}
+.ghost2:hover{background:var(--ink);color:var(--c)}
+.rvform details[open] summary{margin-bottom:16px}
+.rvf{display:grid;gap:14px;font:400 15px var(--sans)}
+.rvf label{display:grid;gap:6px}
+.rvf .inp{width:100%}.rvf textarea.inp{height:auto;padding:12px}
+.rrs{border:0;margin:0;padding:0;display:grid;gap:8px}
+.rrs legend{font:600 15px var(--sans);margin-bottom:6px}
+.rr{display:grid;grid-template-columns:70px minmax(0,1fr) 28px;gap:10px;align-items:center}
+.rr input{accent-color:var(--wine);width:100%}.rr output{font-weight:600;text-align:right}
+.chk{display:flex!important;grid-template-columns:none;align-items:center;gap:10px;min-height:44px}
+.chk input{width:20px;height:20px;accent-color:var(--wine);margin:0}
+.fwrap .thanks:focus{outline:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
