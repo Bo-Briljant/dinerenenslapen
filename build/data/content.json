@@ -4309,6 +4309,82 @@
    "en": "Lauswolt is a large house with golf, meetings and weddings; for the historic rooms, ask about air conditioning in advance."
   }
  },
+ "mearkas": {
+  "meta": {
+   "nl": "Mearkas in Eastermar: eten in een glazen kas tussen de moestuinen en slapen in een glampingtent. Diner, nacht en ontbijt voor ca. € 350 voor twee.",
+   "en": "Mearkas in Eastermar: dinner in a glasshouse among the vegetable gardens and a night in a glamping tent. About € 350 for two, breakfast included."
+  },
+  "secs": [
+   {
+    "k": "pand",
+    "h": {
+     "nl": "De kas en de tuin: koken met wat er buiten groeit",
+     "en": "The glasshouse and the garden: cooking with what grows outside"
+    },
+    "t": {
+     "nl": "De kas is het hart van het terrein. Eromheen liggen een moestuin, een pluktuin en een klein voedselbos, en wat daar groeit, komt in de keuken terecht. Voor de moestuin krijgt de keuken advies van Arno van Voedselbos De Iest, die ze bij Mearkas hun huisbioloog noemen. Met Iel en Mear werkt Kees Meinderts al bijna twintig jaar samen. Het water komt uit de kraan via Merk Water, zodat er geen flessen heen en weer hoeven te rijden.\n\nHet menu staat vast en wisselt met het seizoen: vier gangen voor € 69,50, vijf voor € 79,50 en zes voor € 89,50 per persoon. Een glas wijn bij elke gang kost € 8,50, een half glas € 4,50. Wij vinden het mooi dat je aan tafel ziet waar het vandaan komt: door het glas kijk je zo de tuin in. Vanaf hetzelfde terrein verzorgt het team ook catering, voor bedrijven, feesten en diners aan huis.",
+     "en": "The glasshouse is the heart of the grounds. Around it lie a vegetable garden, a pick-your-own garden and a small food forest, and what grows there ends up in the kitchen. For the vegetable garden the kitchen takes advice from Arno of Voedselbos De Iest, whom Mearkas calls its resident biologist. Kees Meinderts has worked with the supplier Iel en Mear for almost twenty years. The water comes from the tap via Merk Water, so no bottles need to be driven back and forth.\n\nThe menu is set and changes with the seasons: four courses for € 69.50, five for € 79.50 and six for € 89.50 per person. A glass of wine with each course costs € 8.50, half a glass € 4.50. We love that you can see where it all comes from as you eat: through the glass you look straight into the garden. From the same grounds the team also does catering, for businesses, parties and dinners at home."
+    }
+   },
+   {
+    "k": "omgeving",
+    "h": {
+     "nl": "Ligging en omgeving: de Noardlike Fryske Wâlden rond Eastermar",
+     "en": "Location and surroundings: the Noardlike Fryske Wâlden around Eastermar"
+    },
+    "t": {
+     "nl": "Eastermar ligt tussen Burgum en Drachten, in het Nationaal Landschap Noardlike Fryske Wâlden: een kleinschalig landschap van weilanden, houtwallen, elzensingels en dobben, kleine poelen uit de ijstijd. Het is een streek om te fietsen. De Swalkroute Eastermar is een fietsroute van 43 kilometer die begint en eindigt in het dorp en rondgaat langs twee meren, de Burgumer Mar en De Leijen. Onderweg kom je langs Paviljoen de Leyen, met een terras aan het water, en korenmolen De Hoop, die op zaterdag open is.\n\nVanaf de snelweg ben je er in ruim tien minuten. Leeuwarden en Groningen liggen allebei op zo'n half uur tot drie kwartier rijden. Wie twee nachten in de buurt wil blijven, vindt De Herberg van Smallingerland in Rottevalle op een paar kilometer, en Landgoed Lauswolt in Beetsterzwaag op een kwartier.",
+     "en": "Eastermar lies between Burgum and Drachten, in the Noardlike Fryske Wâlden national landscape: a small-scale landscape of meadows, wooded banks, alder hedges and dobben, little ponds left from the Ice Age. It is cycling country. The Swalkroute Eastermar is a 43 kilometre cycle route that starts and ends in the village and loops around two lakes, the Burgumer Mar and De Leijen. Along the way you pass Paviljoen de Leyen, with a terrace on the water, and the De Hoop corn mill, open on Saturdays.\n\nFrom the motorway it is just over ten minutes. Leeuwarden and Groningen are both about half an hour to three quarters of an hour by car. If you want to stay two nights in the area, De Herberg van Smallingerland in Rottevalle is a few kilometres away, and Landgoed Lauswolt in Beetsterzwaag about fifteen minutes."
+    }
+   }
+  ],
+  "faq": [
+   {
+    "q": {
+     "nl": "Wat kost dineren en slapen bij Mearkas?",
+     "en": "What does dinner with an overnight stay at Mearkas cost?"
+    },
+    "a": {
+     "nl": "Het arrangement kost € 175 per persoon: een vijfgangendiner, een nacht in een glampingtent en een uitgebreid ontbijt. Voor twee is dat ca. € 350, drank niet inbegrepen.",
+     "en": "The package costs € 175 per person: a five-course dinner, a night in a glamping tent and a generous breakfast. For two that is about € 350, drinks not included."
+    }
+   },
+   {
+    "q": {
+     "nl": "Kun je het hele jaar in de tenten slapen?",
+     "en": "Can you sleep in the tents all year round?"
+    },
+    "a": {
+     "nl": "Nee. De glampingtenten staan er van mei tot en met oktober; in de winter is de glamping dicht. Er zijn er vijf, en 2026 is al volgeboekt.",
+     "en": "No. The glamping tents are up from May to October; the glamping closes in winter. There are five, and 2026 is already fully booked."
+    }
+   },
+   {
+    "q": {
+     "nl": "Hebben de glampingtenten eigen sanitair?",
+     "en": "Do the glamping tents have their own bathroom?"
+    },
+    "a": {
+     "nl": "Ja. Elke tent heeft eigen sanitair met toilet, douche en wastafel. Het bed is opgemaakt, handdoeken en schoonmaak zitten in de prijs, en er is wifi, een koffiezetapparaat en een waterkoker. Het tweepersoonsbed kan op verzoek twee eenpersoonsbedden worden, als je dat vooraf vraagt.",
+     "en": "Yes. Every tent has its own bathroom with toilet, shower and washbasin. The bed is made up, towels and cleaning are included, and there is wifi, a coffee maker and a kettle. The double bed can be made into two singles if you ask in advance."
+    }
+   },
+   {
+    "q": {
+     "nl": "Kun je bij Mearkas vegetarisch of plantaardig eten?",
+     "en": "Can you eat vegetarian or plant-based at Mearkas?"
+    },
+    "a": {
+     "nl": "Ja. Het menu kan vegetarisch of helemaal plantaardig worden gemaakt.",
+     "en": "Yes. The menu can be made vegetarian or fully plant-based."
+    }
+   }
+  ],
+  "let": {
+   "nl": "Er zijn maar vijf tenten, alleen van mei tot en met oktober, en 2026 is al volgeboekt. Gedineerd wordt van woensdag tot en met zaterdag.",
+   "en": "There are only five tents, up from May to October only, and 2026 is already fully booked. Dinner is served Wednesday to Saturday."
+  }
+ },
  "merlet-schoorl": {
   "meta": {
    "nl": "Merlet in Schoorl: diner met overnachting bij een sterrenrestaurant aan de duinrand, met 28 kamers en suites, een zwembad en uitzicht op de schapenweide.",

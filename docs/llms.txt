@@ -1,6 +1,6 @@
 # Dineren en Slapen
 
-> Onafhankelijke Nederlandse gids van restaurants met overnachting: adressen waar je dineert en blijft slapen onder één dak. 41 adressen in twaalf provincies, met eigen cijfers voor eten, slapen en prijs, en een prijs voor twee (diner, een nacht en ontbijt, gecheckt in hun eigen boekingssysteem voor een doordeweekse nacht in november 2026).
+> Onafhankelijke Nederlandse gids van restaurants met overnachting: adressen waar je dineert en blijft slapen onder één dak. 42 adressen in twaalf provincies, met eigen cijfers voor eten, slapen en prijs, en een prijs voor twee (diner, een nacht en ontbijt, gecheckt in hun eigen boekingssysteem voor een doordeweekse nacht in november 2026).
 
 Regels: eten en slapen op hetzelfde adres, geen ketens, geen maximum per provincie. Een plek in het boek is niet te koop.
 
@@ -13,7 +13,7 @@ Regels: eten en slapen op hetzelfde adres, geen ketens, geen maximum per provinc
 ## Per provincie
 
 - [Restaurant met overnachting in Groningen](https://dinerenenslapen.nl/groningen/): Piloersemaborg, Prinsenhof & Restaurant Nassau, Herberg Onder de Linden, Restaurant de Molenaar. Voor twee € 295 tot € 410.
-- [Restaurant met overnachting in Friesland](https://dinerenenslapen.nl/friesland/): Landgoed Lauswolt, De Hinde, De Herberg van Smallingerland, AEST. Voor twee € 310 tot € 435.
+- [Restaurant met overnachting in Friesland](https://dinerenenslapen.nl/friesland/): Landgoed Lauswolt, Mearkas, De Hinde, De Herberg van Smallingerland, AEST. Voor twee € 310 tot € 435.
 - [Restaurant met overnachting in Drenthe](https://dinerenenslapen.nl/drenthe/): Landhuishotel & Restaurant Rikus, Château De Havixhorst, POSTEN Nordic Cuisine. Voor twee € 295 tot € 330.
 - [Restaurant met overnachting in Overijssel](https://dinerenenslapen.nl/overijssel/): De Lindenhof, De Bloemenbeek, De Swarte Ruijter, De Librije & Librije's Hotel. Voor twee € 340 tot € 1.430.
 - [Restaurant met overnachting in Flevoland](https://dinerenenslapen.nl/flevoland/): 't Voorhuys, Hotel Van Saaze. Voor twee € 200 tot € 225.
@@ -42,6 +42,7 @@ Regels: eten en slapen op hetzelfde adres, geen ketens, geen maximum per provinc
 - [De Swarte Ruijter, Holten](https://dinerenenslapen.nl/overijssel/de-swarte-ruijter-holten/): Sterrenrestaurant met kamers. Eén Michelinster. Ons cijfer 8,8, ca. € 340 voor twee.
 - [De Watergeus, Noorden](https://dinerenenslapen.nl/zuid-holland/de-watergeus-noorden/): Restaurant met kamers aan de plas.  Ons cijfer 8,8, ca. € 260 voor twee.
 - [Grand Hotel Karel V, Utrecht](https://dinerenenslapen.nl/utrecht/grand-hotel-karel-v-utrecht/): Grand hotel in voormalig klooster met sterrenrestaurant. Eén Michelinster. Ons cijfer 8,7, ca. € 520 voor twee.
+- [Mearkas, Eastermar](https://dinerenenslapen.nl/friesland/mearkas/): Restaurant in een kas, met glampingtenten.  Ons cijfer 8,7, ca. € 350 voor twee.
 - [Restaurant de Molenaar, Onderdendam](https://dinerenenslapen.nl/groningen/restaurant-de-molenaar/): Restaurant met kamers in een korenmolen.  Ons cijfer 8,7, ca. € 295 voor twee.
 - [The Dylan Amsterdam, Amsterdam](https://dinerenenslapen.nl/noord-holland/the-dylan-amsterdam/): Boetiekhotel aan de gracht met tweesterrenrestaurant. 2 Michelinsterren. Ons cijfer 8,7, ca. € 1.160 voor twee.
 - [Broederenklooster, Zutphen](https://dinerenenslapen.nl/gelderland/broederenklooster-zutphen/): Boetiekhotel en restaurant in middeleeuws klooster.  Ons cijfer 8,7, ca. € 285 voor twee.
@@ -78,7 +79,7 @@ Regels: eten en slapen op hetzelfde adres, geen ketens, geen maximum per provinc
 
 ## Verhalen
 
-- [Wat kost een avond uit eten met overnachting? Dit rekenen wij voor twee](https://dinerenenslapen.nl/verhalen/wat-kost-dineren-en-slapen/): Van ca. € 200 tot € 1.430 voor twee: wat je kwijt bent aan diner, kamer en ontbijt op 41 adressen, en waar het geld in zit. Zelf nagerekend.
+- [Wat kost een avond uit eten met overnachting? Dit rekenen wij voor twee](https://dinerenenslapen.nl/verhalen/wat-kost-dineren-en-slapen/): Van ca. € 200 tot € 1.430 voor twee: wat je kwijt bent aan diner, kamer en ontbijt op 42 adressen, en waar het geld in zit. Zelf nagerekend.
 - [Arrangement of los boeken: wanneer het arrangement echt voordeliger is](https://dinerenenslapen.nl/verhalen/arrangement-of-los-boeken/): Een diner-arrangement voelt als korting, maar is het dat ook? Wij zetten bij 18 adressen het arrangement naast los boeken. Zes keer was het goedkoper.
 - [Goed eten in Groningen waar je ook kan blijven slapen](https://dinerenenslapen.nl/verhalen/goed-eten-en-slapen-groningen/): Een borg met bedsteden, een prinsenpaleis, een herberg met een ster en een molen aan het water. Waar je in Groningen eet en slaapt onder één dak.
 
