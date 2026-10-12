@@ -6,7 +6,7 @@ DB = json.load(open(_cfg)) if os.path.exists(_cfg) else {'url': '', 'key': ''}
 
 FORM_MSG = {
     'nl': {'fail': 'Het versturen is niet gelukt. Probeer het zo nog eens, of mail ons op %s.' % MAIL, 'many': 'Je hebt net al een paar keer iets gestuurd. Probeer het over een uur nog eens.', 'prov': 'Kies nog even je provincie, of kies Geen voorkeur.', 'mail': 'Vul een geldig e-mailadres in.', 'req': 'Vul de verplichte velden in.'},
-    'en': {'fail': 'Sending did not work. Please try again shortly, or email us at %s.' % MAIL, 'many': 'You have just sent a few messages. Please try again in an hour.', 'prov': 'Please choose a province, or choose No preference.', 'mail': 'Please enter a valid email address.', 'req': 'Please fill in the required fields.'},
+    'en': {'fail': 'Something went wrong while sending. Please try again in a moment, or email us at %s.' % MAIL, 'many': 'You have already sent us a few messages just now. Please try again in an hour.', 'prov': 'Please choose a province, or choose No preference.', 'mail': 'Please enter a valid email address.', 'req': 'Please fill in the required fields.'},
 }
 
 JS = (r"""(function(){var DB=%s,MSG=%s,L=document.documentElement.lang==='en'?'en':'nl',t0=Date.now();
@@ -52,7 +52,7 @@ def prov_select(lang, idp, dark=False):
     return ('<label for="%s-prov" class="nbl">%s</label><select id="%s-prov" class="inp nbp" name="provincie" required>'
             '<option value="">%s</option>%s<option value="geen" data-nb>%s</option></select>') % (
         idp, 'In welke provincie ga je het liefst dineren en slapen?' if nl else 'Which province would you most like to dine and stay in?', idp,
-        'Kies je provincie' if nl else 'Choose a province', opts, 'Geen voorkeur, heel Nederland' if nl else 'No preference, anywhere in the Netherlands')
+        'Kies je provincie' if nl else 'Choose a province', opts, 'Geen voorkeur, heel Nederland' if nl else 'No preference, anywhere in the country')
 
 def newsletter_form(lang, idp, compact=False, dark=True, head=True):
     t = T[lang]
@@ -61,7 +61,7 @@ def newsletter_form(lang, idp, compact=False, dark=True, head=True):
             '%s<input id="%s-mail" class="inp" type="email" name="email" autocomplete="email" required maxlength="200" placeholder="%s"><button class="btn%s" type="submit">%s</button></form>%s'
             '<p class="thanks" role="status">%s</p></div>') % (
         ('<p class="nbh">%s</p>' % t['nlLabel']) if head else '', prov_select(lang, idp), idp, 'Je e-mailadres' if lang == 'nl' else 'Your email address', HONEY, idp, t['ph'], ' ghost' if compact else '', t['nlBtn'], ferr(),
-        'Dank je, je staat op de lijst. De eerste mail komt begin volgende maand, met de adressen in jouw provincie bovenaan.' if lang == 'nl' else 'Thank you, you are on the list. The first email arrives early next month, with addresses in your province first.')
+        'Dank je, je staat op de lijst. De eerste mail komt begin volgende maand, met de adressen in jouw provincie bovenaan.' if lang == 'nl' else 'Thank you, you are on the list. The first email will arrive early next month, with the addresses in your province at the top.')
 
 def nb_preselect(doc, path):
     seg = [x for x in path.split('/') if x]
@@ -96,16 +96,16 @@ def reviews_section(l, lang):
             '<p class="thanks" role="status">%s</p></details></aside></div></section>') % (
         l['id'], 'Reviews van lezers' if nl else 'Reviews from readers', ('Ben jij bij %s geweest?' if nl else 'Have you been to %s?') % esc(l['name']),
         ('Er staan nog geen reviews van lezers bij dit adres. Ben je er geweest? Dan lezen we graag hoe het was. Jouw review komt naast ons eigen cijfer te staan en telt daarin niet mee.' if nl else
-         'There are no reader reviews for this address yet. Have you been? We would love to hear how it was. Your review sits next to our own score and does not count towards it.'),
+         'There are no reader reviews for this address yet. Have you been? We would love to hear how it was. Your review will appear next to our own score and does not count towards it.'),
         '', 'Schrijf een review' if nl else 'Write a review', l['id'], esc(l['name']), HONEY,
-        'Je voornaam (die zetten we bij je review)' if nl else 'Your first name (shown with the review)', 'Wanneer was je er?' if nl else 'When did you go?', opts,
+        'Je voornaam (die zetten we bij je review)' if nl else 'Your first name (shown with your review)', 'Wanneer was je er?' if nl else 'When did you go?', opts,
         'Jouw cijfers, van 1 tot 10' if nl else 'Your scores, from 1 to 10', rng('eten', 'Eten' if nl else 'Food'), rng('slapen', 'Slapen' if nl else 'Stay'), rng('prijs', 'Prijs' if nl else 'Price'),
         'Wat maakte het bijzonder?' if nl else 'What made it special?', 'Minstens een paar zinnen.' if nl else 'At least a few sentences.',
-        'Je e-mailadres (niet verplicht)' if nl else 'Your email address (optional)', 'Alleen voor als we een vraag hebben. Het komt nooit op de site.' if nl else 'Only in case we have a question. It is never shown.',
+        'Je e-mailadres (niet verplicht)' if nl else 'Your email address (optional)', 'Alleen voor als we een vraag hebben. Het komt nooit op de site.' if nl else 'Only in case we have a question. It never appears on the site.',
         'Ik heb hier zelf gegeten of geslapen' if nl else 'I have dined or stayed here myself',
         'Review versturen' if nl else 'Send review',
         'We lezen elke review voordat hij online komt.' if nl else 'We read every review before it goes online.', ferr(),
-        ('Dank je. We lezen je review en zetten hem daarna bij %s.' if nl else 'Thank you. We will read your review and then add it to %s.') % esc(l['name'].rstrip('.')))
+        ('Dank je. We lezen je review en zetten hem daarna bij %s.' if nl else 'Thank you. We will read your review and then add it to the page for %s.') % esc(l['name'].rstrip('.')))
 
 def build_contact():
     items = [('Home', '/'), ('Contact', None)]
@@ -158,4 +158,4 @@ def gallery_section(l, lang):
         figs += '<figure><a href="%s" target="_blank" rel="noopener">%s</a><figcaption>%s</figcaption></figure>' % (v[-1][2], pic('own:' + name, cap, '(max-width: 760px) 50vw, 300px', widths=(480, 960)), esc(cap))
     return ('<section class="sec" id="fotos"><div class="wrap stack"><p class="k">%s</p><h2>%s</h2><div class="gal">%s</div><p class="meta">%s</p></div></section>') % (
         'Onze foto\'s' if nl else 'Our photos', ('Zo was het bij %s' if nl else 'How it was at %s') % esc(l['name']), figs,
-        'Foto\'s die we zelf maakten tijdens onze bezoeken. Klik op een foto voor een grotere versie.' if nl else 'Our own photos from our visits. Click a photo for a larger version.')
+        'Foto\'s die we zelf maakten tijdens onze bezoeken. Klik op een foto voor een grotere versie.' if nl else 'Photos we took ourselves on our visits. Click a photo to see a larger version.')

@@ -33,7 +33,7 @@ def consent_html(lang):
         'Cookies' if nl else 'Cookies',
         'We meten hoe de site gebruikt wordt, zodat we hem beter kunnen maken. Mogen we daarvoor analytische cookies gebruiken? Advertentiecookies gebruiken we nooit.' if nl else
         'We measure how the site is used so we can improve it. May we use analytics cookies for that? We never use advertising cookies.',
-        'Meer over privacy' if nl else 'About privacy (in Dutch)', 'Ja, prima' if nl else 'Yes, fine', 'Liever niet' if nl else 'No thanks')
+        'Meer over privacy' if nl else 'About privacy (in Dutch)', 'Ja, prima' if nl else 'Yes, that\'s fine', 'Liever niet' if nl else 'No thanks')
 
 CONSENT_JS = (r""";(function(){var b=document.getElementById('ck');if(!b)return;var k='des_cookies',c=null;try{c=localStorage.getItem(k)}catch(e){}
 function set(x){try{localStorage.setItem(k,x)}catch(e){}if(x==='ja')gtag('consent','update',{analytics_storage:'granted'});else gtag('consent','update',{analytics_storage:'denied'});

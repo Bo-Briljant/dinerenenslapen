@@ -30,7 +30,7 @@ def share_links(path, title, lang, img=None, cls='share'):
         ('pinterest', 'Pinterest', 'https://pinterest.com/pin/create/button/?url=%s&description=%s%s' % (u, t, ('&media=' + quote(img, safe='')) if img else '')),
         ('linkedin', 'LinkedIn', 'https://www.linkedin.com/sharing/share-offsite/?url=' + u),
         ('x', 'X', 'https://x.com/intent/post?url=%s&text=%s' % (u, t)),
-        ('mail', 'E-mail' if nl else 'Email', 'mailto:?subject=%s&body=%s' % (t, quote((('Dit leek me iets voor ons: ' if nl else 'Thought of us: ') + url), safe=''))),
+        ('mail', 'E-mail' if nl else 'Email', 'mailto:?subject=%s&body=%s' % (t, quote((('Dit leek me iets voor ons: ' if nl else 'This looks like one for us: ') + url), safe=''))),
     ]
     lab = 'Deel via %s' if nl else 'Share via %s'
     h = ''.join('<li><a href="%s" target="_blank" rel="noopener nofollow" class="sh sh-%s" aria-label="%s" title="%s">%s</a></li>' % (esc(href), k, lab % n, n, ico(k)) for k, n, href in items)
@@ -43,9 +43,9 @@ def reel(lang, cls=''):
     return ('<figure class="reelw %s"><div class="reel"><video muted loop playsinline preload="none" poster="%s" aria-label="%s"><source src="%s" type="video/mp4"><source src="%s" type="video/webm"></video>'
             '<button type="button" class="rplay" data-s="play" aria-label="%s"><i></i></button></div>'
             '<figcaption>%s <a href="%s" target="_blank" rel="noopener">%s</a></figcaption></figure>') % (
-        cls, POSTER, 'Filmpje van Dineren en Slapen: kastelen, diners, kamers en ontbijt op bed' if nl else 'Dineren en Slapen film: castles, dinners, rooms and breakfast in bed',
+        cls, POSTER, 'Filmpje van Dineren en Slapen: kastelen, diners, kamers en ontbijt op bed' if nl else 'Short film by Dineren en Slapen: castles, dinners, rooms and breakfast in bed',
         VIDEO, VIDEO.replace('.mp4', '.webm'), 'Speel het filmpje af' if nl else 'Play the film',
-        'Dineren en slapen in dertig seconden.' if nl else 'Thirty seconds of dining and staying.', SOCIAL[0][2], 'Meer filmpjes op Instagram' if nl else 'More films on Instagram')
+        'Dineren en slapen in dertig seconden.' if nl else 'Dinner and a night away in thirty seconds.', SOCIAL[0][2], 'Meer filmpjes op Instagram' if nl else 'More films on Instagram')
 
 def home_social(lang):
     nl = lang == 'nl'
@@ -56,12 +56,12 @@ def home_social(lang):
         reel(lang),
         'Volg ons' if nl else 'Follow us', 'Elke week een nieuw adres in je tijdlijn' if nl else 'A new address in your feed every week',
         'Op Instagram en TikTok delen we korte filmpjes van adressen uit het boek, met wat je er voor twee kwijt bent. Volg ons, dan zie je ze als eerste.' if nl else
-        'On Instagram and TikTok we share short films of addresses from the book, with what you pay for two. Follow us to see them first.',
+        'On Instagram and TikTok we share short films of addresses from the book, with what you will pay for two. Follow us and you will see them first.',
         follow_links(lang, 'follow big'),
         'Deel het boek' if nl else 'Share the book', share_links(u_home(lang), 'Dineren en Slapen: restaurants waar je ook blijft slapen' if nl else 'Dineren en Slapen: restaurants with rooms in the Netherlands', lang, SITE + POSTER),
-        'Nieuwsbrief' if nl else 'Newsletter', 'Elke maand een adres om voor om te rijden' if nl else 'One address a month worth the drive',
+        'Nieuwsbrief' if nl else 'Newsletter', 'Elke maand een adres om voor om te rijden' if nl else 'Every month, an address worth the drive',
         'Een nieuw adres, een arrangement dat de moeite waard is en de adressen die het net niet haalden. Kies je provincie, dan zetten we die bovenaan.' if nl else
-        'A new address, a package worth booking and the places that just missed out. Choose your province and we will put it first. The newsletter is in Dutch.',
+        'A new address, a package worth booking and the places that only just missed out. Choose your province and we will put it at the top. The newsletter is in Dutch.',
         newsletter_form(lang, 'hm', head=False))
 
 def share_strip(path, title, lang, img=None):
@@ -70,7 +70,7 @@ def share_strip(path, title, lang, img=None):
         'Delen en volgen' if nl else 'Share and follow', 'Deel deze pagina' if nl else 'Share this page', share_links(path, title, lang, img),
         'Volg Dineren en Slapen' if nl else 'Follow Dineren en Slapen', follow_links(lang))
 
-SOCIAL_JS = r""";(function(){var L=document.documentElement.lang==='en'?'en':'nl',T={nl:{c:'Link gekopieerd.',f:'Kopiëren is niet gelukt. Kopieer de link uit de adresbalk.',p:'Pauzeer het filmpje',s:'Speel het filmpje af'},en:{c:'Link copied.',f:'Copying failed. Copy the link from the address bar.',p:'Pause the film',s:'Play the film'}}[L];
+SOCIAL_JS = r""";(function(){var L=document.documentElement.lang==='en'?'en':'nl',T={nl:{c:'Link gekopieerd.',f:'Kopiëren is niet gelukt. Kopieer de link uit de adresbalk.',p:'Pauzeer het filmpje',s:'Speel het filmpje af'},en:{c:'Link copied.',f:'Copying did not work. Please copy the link from the address bar.',p:'Pause the film',s:'Play the film'}}[L];
 document.querySelectorAll('.sh-copy').forEach(function(b){b.addEventListener('click',function(){var ok=b.closest('ul').nextElementSibling;function say(t){if(ok){ok.textContent=t;setTimeout(function(){ok.textContent=''},3000)}}
 if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(b.dataset.url).then(function(){say(T.c)},function(){say(T.f)});else say(T.f)})});
 if(navigator.share)document.querySelectorAll('.sh-nat').forEach(function(li){li.hidden=false;li.querySelector('button').addEventListener('click',function(){var b=this;navigator.share({title:b.dataset.title,url:b.dataset.url}).catch(function(){})})});
