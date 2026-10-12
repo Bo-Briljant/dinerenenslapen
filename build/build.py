@@ -83,13 +83,13 @@ THEMES = [
     {'slug': 'sterrenrestaurants-met-overnachting', 'test': lambda l: l['ms'] > 0,
      'h1': 'Sterrenrestaurants met overnachting', 'nav': 'Sterrenrestaurants met overnachting',
      'title': 'Sterrenrestaurant met overnachting: alle {n} adressen (2026)',
-     'desc': 'Eten bij een sterrenchef en daarna de trap op. Alle {n} adressen in ons boek met een Michelinster en kamers, met wat je voor twee kwijt bent.',
+     'desc': 'Eten bij een sterrenchef en daarna de trap op. Alle {n} adressen in ons boek met een Michelinster en kamers, en wat je er voor twee kwijt bent.',
      'intro': 'Een sterrendiner en daarna niet meer naar huis hoeven: dat is voor ons de mooiste avond die er is. Dit zijn alle adressen in het boek waar de keuken een Michelinster heeft en je boven het restaurant blijft slapen. Van een herberg in Aduard tot De Librije, het enige driesterrenrestaurant van Nederland.'},
     {'slug': 'kastelen-en-landgoederen', 'test': lambda l: bool(re.search(r'kasteel|château|chateau|landgoed|havezate|buitenplaats', (l['type']['nl'] + ' ' + l['name']).lower())),
      'h1': 'Dineren en slapen in een kasteel of op een landgoed', 'nav': 'Kastelen en landgoederen',
      'title': 'Overnachten in een kasteel met diner: {n} adressen (2026)',
-     'desc': 'Een kasteel, een havezate of een landgoed met een goede keuken en kamers. {n} adressen waar je dineert en blijft slapen, met prijs voor twee.',
-     'intro': 'Een gracht, een oprijlaan, een slaapkamer met hoge ramen. Op deze adressen eet en slaap je in een kasteel, een havezate of op een landgoed, en de keuken is er net zo serieus als het pand.'},
+     'desc': 'Een kasteel, een havezate of een landgoed met een goede keuken en kamers. {n} adressen waar je dineert en blijft slapen, met de prijs voor twee.',
+     'intro': 'Een gracht, een oprijlaan, een slaapkamer met hoge ramen. Op deze adressen eet en slaap je in een kasteel, een havezate of op een landgoed, en de keuken doet niet onder voor het pand.'},
     {'slug': 'aan-zee-en-aan-het-water', 'test': lambda l: l['id'] in {'aest-terschelling', 'hof-aan-zee-dishoek', 'merlet-schoorl', 'de-hinde-hindeloopen', 'de-watergeus-noorden', 'de-nederlanden-vreeland', 'restaurant-de-molenaar', 'de-kromme-watergang-hoofdplaat'},
      'h1': 'Dineren en slapen aan zee en aan het water', 'nav': 'Aan zee en aan het water',
      'title': 'Restaurant met overnachting aan zee of aan het water (2026)',
@@ -99,7 +99,7 @@ THEMES = [
      'h1': 'Betaalbaar dineren en slapen: tot € 340 voor twee', 'nav': 'Betaalbaar, tot € 340 voor twee',
      'title': 'Betaalbaar diner met overnachting: {n} adressen tot € 340',
      'desc': 'Goed eten en mooi slapen hoeft niet duur te zijn. {n} adressen waar je voor twee tot ca. € 340 kwijt bent voor diner, een nacht en ontbijt.',
-     'intro': 'Goed eten en mooi slapen hoeft niet duur te zijn. Op deze adressen ben je voor twee hooguit zo\'n € 340 kwijt voor het diner, een nacht en het ontbijt, zonder drank. Vaak in een molen, een herberg of een landhuis in het noorden en oosten.'},
+     'intro': 'Goed eten en mooi slapen hoeft niet duur te zijn. Op deze adressen ben je voor twee hooguit zo\'n € 340 kwijt voor het diner, een nacht en het ontbijt, zonder drank. Vaak in een molen, een herberg of een landhuis in het noorden en het oosten.'},
 ]
 for t in THEMES:
     t['locs'] = [l for l in ORDER if t['test'](l)]
@@ -177,7 +177,23 @@ def img_variants(blob, widths=(480, 960, 1600)):
     key = (name, widths)
     if key in IMG_DONE: return IMG_DONE[key]
     sp = src_path(name)
-    if not sp: return None
+    if not sp:
+        # bronbeeld niet beschikbaar: gebruik de eerder gebouwde varianten in docs/img
+        got = []
+        for w in widths:
+            fn = '%s-%d.webp' % (name, w)
+            fp = os.path.join(OUT, 'img', fn)
+            if os.path.exists(fp):
+                ww, hh = Image.open(fp).size
+                got.append((ww, hh, '/img/' + fn))
+        if not got:
+            pre = name + '-'
+            cand = sorted((f for f in os.listdir(os.path.join(OUT, 'img')) if f.startswith(pre) and f.endswith('.webp') and f[len(pre):-5].isdigit()), key=lambda f: int(f[len(pre):-5])) if os.path.isdir(os.path.join(OUT, 'img')) else []
+            for fn in cand:
+                ww, hh = Image.open(os.path.join(OUT, 'img', fn)).size
+                if ww <= max(widths): got.append((ww, hh, '/img/' + fn))
+        IMG_DONE[key] = got or None
+        return IMG_DONE[key]
     im = Image.open(sp).convert('RGB')
     W, H = im.size
     out = []
@@ -220,14 +236,20 @@ def prov_text(P, lang):
     nw = words[len(ls)] if len(ls) < 6 else str(len(ls))
     L = lambda a: lst(a, lang)
     if nl:
-        intro2 = 'In %s staan nu %s adressen in het boek. Komen we meer tegen dat erbij hoort, dan komt het erbij. Moeten we er één kiezen, dan wordt het %s.' % (pn, nw, top['name'])
-        if starred: intro2 += ' Wie voor een ster komt, zit goed bij %s.' % L(l['name'] for l in starred)
-        intro2 += (' De volgende plek is nog leeg: dat adres gaan we nog proberen.' if P.get('open') else '')
-        faq = [('Waar kun je in %s eten en blijven slapen?' % pn, 'In ons boek staan %s adressen in %s: %s.' % (nw, pn, L('%s in %s' % (l['name'], l['place']) for l in ls))),
-               ('Waar zouden jullie zelf heen gaan in %s?' % pn, '%s in %s. %s%s' % (top['name'], top['place'], top['kort']['nl'] + ' ', ('Zit dat vol, dan bellen we %s.' % sec['name']) if sec else '')),
-               ('Wat kost een diner met overnachting in %s?' % pn, 'Reken voor twee op %s bij %s%s, voor het diner, een nacht en het ontbijt. De bedragen komen uit hun eigen boekingssysteem, voor een doordeweekse nacht in november 2026.' % (eur(lo['pz']['p2']), lo['name'], (' tot %s bij %s' % (eur(hi['pz']['p2']), hi['name'])) if hi is not lo else ''))]
-        faq.append(('Kun je in %s bij een sterrenrestaurant blijven slapen?' % pn, ('Ja: bij %s. Je loopt na het dessert zo naar boven.' % L('%s in %s' % (l['name'], l['place']) for l in starred)) if starred else 'Nog niet bij een adres met een ster. Wel bij plekken waar we net zo graag zitten.'))
-        if len(sized) > 1: faq.append(('Wat is het kleinste en het grootste adres?', 'Het kleinste is %s met %s. Het grootste is %s met %s. Klein betekent vooral: vroeg boeken.' % (sized[0][1]['name'], sized[0][1]['rooms']['nl'][0].lower() + sized[0][1]['rooms']['nl'][1:], sized[-1][1]['name'], sized[-1][1]['rooms']['nl'][0].lower() + sized[-1][1]['rooms']['nl'][1:])))
+        intro2 = ('In %s staat nu één adres in het boek.' % pn) if len(ls) == 1 else ('In %s staan nu %s adressen in het boek.' % (pn, nw))
+        intro2 += ' Vinden we er meer die erbij horen, dan komen die erbij. Moeten we er één kiezen, dan wordt het %s.' % top['name']
+        others = [l for l in starred if l is not top]
+        if top in starred and not others: intro2 += ' Het is ook het enige adres in %s met een Michelinster.' % pn
+        elif top in starred: intro2 += ' Wie voor een ster komt, kan daar terecht, maar ook bij %s.' % L(l['name'] for l in others)
+        elif starred: intro2 += ' Wie voor een ster komt, zit goed bij %s.' % L(l['name'] for l in starred)
+        intro2 += (' De plek daarna is nog leeg: die bewaren we voor het adres dat we nu gaan proberen.' if P.get('open') else '')
+        faq = [('Waar kun je in %s eten en blijven slapen?' % pn, ('In ons boek staan %s adressen in %s: %s.' % (nw, pn, L('%s in %s' % (l['name'], l['place']) for l in ls))) if len(ls) > 1 else 'In ons boek staat één adres in %s: %s in %s.' % (pn, top['name'], top['place'])),
+               ('Waar gaan jullie zelf het liefst heen in %s?' % pn, '%s in %s. %s%s' % (top['name'], top['place'], top['kort']['nl'] + ' ', ('Is daar niets meer vrij, dan bellen we %s.' % sec['name']) if sec else '')),
+               ('Wat kost een diner met overnachting in %s?' % pn, 'Voor het diner, een nacht en het ontbijt betaal je met z\'n tweeën %s%s bij %s%s. We halen de bedragen uit de boekingssystemen van de adressen zelf, voor een doordeweekse nacht in november 2026.' % ('van ' if hi is not lo else '', eur(lo['pz']['p2']), lo['name'], (' tot %s bij %s' % (eur(hi['pz']['p2']), hi['name'])) if hi is not lo else ''))]
+        faq.append(('Kun je in %s bij een sterrenrestaurant blijven slapen?' % pn, ('Ja: bij %s. Na het dessert loop je zo de trap op.' % L('%s in %s' % (l['name'], l['place']) for l in starred)) if starred else 'Nog niet: in %s staat nog geen adres met een Michelinster in ons boek. Wel plekken waar we net zo graag aan tafel zitten.' % pn))
+        if len(sized) > 1: faq.append(('Wat is het kleinste en wat het grootste adres in %s?' % pn, 'Het kleinste is %s met %s. Het grootste is %s met %s. Hoe kleiner het huis, hoe eerder je moet boeken.' % (sized[0][1]['name'], sized[0][1]['rooms']['nl'][0].lower() + sized[0][1]['rooms']['nl'][1:], sized[-1][1]['name'], sized[-1][1]['rooms']['nl'][0].lower() + sized[-1][1]['rooms']['nl'][1:])))
+        # namen die op een punt eindigen (GEM.) mogen geen dubbele punt aan het zinseinde geven
+        intro2 = intro2.replace('..', '.'); faq = [(q, a.replace('..', '.')) for q, a in faq]
     else:
         intro2 = 'In %s the book holds %s addresses for now. When we come across more that belong here, they go in. If we had to pick one, it would be %s.' % (pn, nw, top['name'])
         if starred: intro2 += ' If you are coming for a star, try %s.' % L(l['name'] for l in starred)
@@ -303,7 +325,7 @@ def footer(lang):
     if lang == 'nl': cols += '<nav aria-label="Verhalen"><h2>Verhalen</h2><ul>%s</ul></nav>' % blog
     cols += '<nav aria-label="%s"><h2>%s</h2><ul>%s</ul></nav>' % (t['about'], t['about'], about)
     return '<footer class="ft"><div class="wrap"><div class="cols">%s</div><div class="base"><span>© 2026 dinerenenslapen.nl</span><span>%s</span></div></div></footer>' % (
-        cols, 'Keurmerken volgens de gidsen van 2026. Prijzen gecheckt in oktober 2026.' if lang == 'nl' else 'Labels according to the 2026 guides. Prices checked in October 2026.')
+        cols, 'Keurmerken volgens de gidsen van 2026. Prijzen gecontroleerd in oktober 2026.' if lang == 'nl' else 'Labels according to the 2026 guides. Prices checked in October 2026.')
 
 def newsletter_form(lang, idp, compact=False, dark=True):
     t = T[lang]
@@ -425,7 +447,7 @@ def build_prov(P, lang):
             num(total(l), lang), T[lang]['ourscore'], esc(l['place']), p2(l, lang), chips(l, lang), esc(l['tag'][lang]), esc(l['kort'][lang]), esc((l['rooms'] or {}).get(lang) or ''),
             u_loc(l, lang), T[lang]['read'])
     rows += ('<article class="row"><div class="n">%d</div><div class="open"><h2 style="font-size:30px">%s %d</h2><p>%s</p><p class="links">%s</p></div></article>') % (
-        len(ls) + 1, 'Plek' if nl else 'Place', len(ls) + 1, 'We zijn dit nog aan het testen.' if nl else 'We are still testing this one.',
+        len(ls) + 1, 'Plek' if nl else 'Place', len(ls) + 1, 'Dit adres testen we nog.' if nl else 'We are still testing this one.',
         '<a href="/zo-kiezen-wij/#tip">Tip ons een adres in %s</a>' % pn if nl else '<a href="/zo-kiezen-wij/#tip">Suggest an address (form in Dutch)</a>')
     h += '<section class="sec"><div class="wrap split"><div style="min-width:0">%s<div style="border-top:1px solid var(--line)"></div></div><aside class="side" style="display:grid;gap:14px"><p class="k">%s</p>%s<p class="meta">%s</p></aside></div></section>' % (
         rows, ('Kaart · ' if nl else 'Map · ') + pn, svg_map(lang, only=P['id']), ('Voor twee: %s tot %s' if nl else 'For two: %s to %s') % (eur(min(v), lang), eur(max(v), lang)))
@@ -457,7 +479,7 @@ def build_prov(P, lang):
     t1 = ('Restaurant met overnachting %s: onze adressen (2026)' if nl else 'Restaurants with rooms in %s (2026)') % pn
     if len(t1) > 60: t1 = ('Restaurant met overnachting %s (2026)' if nl else 'Restaurants with rooms, %s (2026)') % pn
     st = len([l for l in ls if l['ms']])
-    desc = (('%d adressen in %s waar wij dineren en blijven slapen%s. Voor twee reken je op %s tot %s, met diner en ontbijt.' % (len(ls), pn, (', %d met een Michelinster' % st) if st else '', eur(min(v)), eur(max(v)))) if nl else
+    desc = (('Hier dineren en slapen wij in %s: %d adressen%s. Voor twee reken je op %s tot %s, inclusief diner en ontbijt.' % (pn, len(ls), (', waarvan %d met een Michelinster' % st) if st else '', eur(min(v)), eur(max(v)))) if nl else
             ('%d places in %s where we dine and stay the night%s. For two, count on %s to %s with dinner and breakfast.' % (len(ls), pn, (', %d with a Michelin star' % st) if st else '', eur(min(v), 'en'), eur(max(v), 'en'))))
     page(u_prov(P['id'], lang), lang, t1, desc, h, 'prov', {'nl': u_prov(P['id'], 'nl'), 'en': u_prov(P['id'], 'en')},
          [ld_crumbs(items), ld_itemlist(ls, lang), ld_faq(faq), {'@type': 'CollectionPage', 'name': t1, 'url': SITE + u_prov(P['id'], lang), 'inLanguage': 'nl-NL' if nl else 'en-GB'}], og=og_img(P['plate']), prio=0.9)
@@ -500,7 +522,7 @@ def build_loc(l, lang):
           '<aside class="stack" style="min-width:0"><div style="display:flex;gap:16px;align-items:center"><span class="score" style="width:92px;height:92px"><b style="font-size:36px">%s</b><small>%s</small></span><p class="meta">%s</p></div><div class="bars" style="grid-template-columns:1fr">%s</div>%s</aside></div></section>') % (
         'Onze beoordeling' if nl else 'Our verdict', ('Dineren en slapen bij ' if nl else 'Dining and staying at ') + esc(l['name']), paras, let,
         'Prijs en praktisch' if nl else 'Price and practicalities', dl,
-        'Gerekend met hun eigen site en boekingssysteem, voor een doordeweekse nacht in november 2026. Kijk voor jouw datum bij het adres zelf.' if nl else 'Worked out from their own website and booking system for a weeknight in November 2026. Check your own date with the address.',
+        'Berekend met hun eigen site en boekingssysteem, voor een doordeweekse nacht in november 2026. Voor jouw datum kijk je het best bij het adres zelf.' if nl else 'Worked out from their own website and booking system for a weeknight in November 2026. Check your own date with the address.',
         num(total(l), lang), T[lang]['ourscore'], (('Nummer %d van de %d adressen in Nederland, nummer %d in %s.' if nl else 'Number %d of %d addresses in the Netherlands, number %d in %s.') % (RANK[l['id']], len(LOCS), in_prov(l['prov']).index(l) + 1, pn)), bars,
         ('<div><p class="k" style="margin-bottom:10px">%s</p>%s</div>' % ('Deel dit adres' if nl else 'Share this address', share_links(u_loc(l, lang), l['name'] + (' in ' if nl else ' in ') + l['place'] + (' | Dineren en Slapen'), lang, l.get('ogimg')))) + toc + svg_map(lang, only=l['prov']))
     if faq: h += '<section class="sec white" id="vragen"><div class="narrow">%s</div></section>' % faq_html(faq, title=('Veelgestelde vragen over ' if nl else 'Frequently asked questions about ') + l['name'])
@@ -510,7 +532,7 @@ def build_loc(l, lang):
     sib = [x for x in in_prov(l['prov']) if x is not l]
     ex += '<div class="stack"><p class="k">%s</p><h2>%s</h2><div class="minis">%s</div><p><a href="%s">%s</a></p></div>' % (
         'Dezelfde provincie' if nl else 'Same province', ('Ook in ' if nl else 'Also in ') + esc(pn), ''.join(mini(x, lang) for x in sib), u_prov(P['id'], lang), ('Alle adressen: restaurant met overnachting in ' if nl else 'All addresses: dine and stay in ') + esc(pn))
-    ex += '<div class="stack"><p class="k">%s</p><h2>%s</h2><div class="minis">%s</div></div>' % ('In de buurt' if nl else 'Nearby', 'Net over de grens van de provincie' if nl else 'Just across the provincial border', ''.join(mini(x, lang) for x in nearby(l)))
+    ex += '<div class="stack"><p class="k">%s</p><h2>%s</h2><div class="minis">%s</div></div>' % ('In de buurt' if nl else 'Nearby', 'Net over de provinciegrens' if nl else 'Just across the provincial border', ''.join(mini(x, lang) for x in nearby(l)))
     if nl:
         ps = posts_of_loc(l['id']); ths = themes_of(l)
         if ps: ex += '<div class="stack"><p class="k">Verhalen</p><h2>%s in onze verhalen</h2><div class="cards">%s</div></div>' % (esc(l['name']), ''.join(post_card(a) for a in ps))
@@ -525,7 +547,7 @@ def build_loc(l, lang):
     if len(title) > 60: title = ('%s: diner met overnachting' if nl else '%s: dine and stay') % l['name']
     if len(title) > 60: title = l['name']
     tag = l['tag'][lang].rstrip('.:')
-    desc = '%s. %s%s %s.' % (tag, (stars(l['ms'], lang) + (', ' if nl else ', ')) if l['ms'] else '', ('voor twee ca. ' if nl else 'for two approx. ') + eur(l['pz']['p2'], lang) if l['ms'] else (('Voor twee ca. ' if nl else 'For two approx. ') + eur(l['pz']['p2'], lang)), 'met diner en ontbijt, ons verslag en cijfers' if nl else 'with dinner and breakfast, our review and scores')
+    desc = '%s. %s%s %s.' % (tag, (stars(l['ms'], lang) + (', ' if nl else ', ')) if l['ms'] else '', ('voor twee ca. ' if nl else 'for two approx. ') + eur(l['pz']['p2'], lang) if l['ms'] else (('Voor twee ca. ' if nl else 'For two approx. ') + eur(l['pz']['p2'], lang)), 'met diner en ontbijt. Lees ons verslag en onze cijfers' if nl else 'with dinner and breakfast, our review and scores')
     if len(desc) > 158: desc = '%s. %s %s.' % (tag, ('Voor twee ca. ' if nl else 'For two approx. ') + eur(l['pz']['p2'], lang), 'met diner en ontbijt' if nl else 'with dinner and breakfast')
     if len(desc) < 75: desc += ' ' + ('Ons verslag, onze cijfers en wat je kwijt bent.' if nl else 'Our review, our scores and the price.')
     if l.get('meta'): desc = l['meta'][lang]
@@ -544,8 +566,8 @@ def build_top(lang):
     starred = len([l for l in ls if l['ms']]); cheap = min(ls, key=lambda l: l['pz']['p2'])
     h = '<section class="dark hero"><div class="wrap">%s<div class="txt" style="margin-top:22px;max-width:820px;display:grid;gap:18px"><p class="k">%s</p><h1>%s</h1><p class="sub">%s</p><p class="lead">%s</p></div></div></section>' % (
         crumbs(items), 'De lijst · editie 2026' if nl else 'The list · 2026 edition', 'Top 10 restaurants met overnachting in Nederland' if nl else 'Top 10 restaurants with rooms in the Netherlands',
-        'Tien adressen waar de avond aan tafel en de nacht in huis samen de reis waard zijn' if nl else 'Ten places where the evening at the table and the night upstairs are worth the trip together',
-        ('Dit is onze eigen lijst, op volgorde van onze drie cijfers: eten, slapen en prijs. %d van de tien hebben een Michelinster, ze liggen in %d provincies, en het voordeligste adres in de lijst is %s, %s.' % (starred, len(provs), cheap['name'], p2(cheap, lang))) if nl else
+        'Tien adressen waar de avond aan tafel en de nacht erna samen de reis waard zijn' if nl else 'Ten places where the evening at the table and the night upstairs are worth the trip together',
+        ('Dit is onze eigen lijst, op volgorde van onze drie cijfers: eten, slapen en prijs. Van de tien adressen hebben er %d een Michelinster. Ze liggen in %d provincies, en het voordeligste is %s, %s.' % (starred, len(provs), cheap['name'], p2(cheap, lang))) if nl else
         ('Our own list, in order of our three scores: food, stay and price. %d of the ten hold a Michelin star, they are spread over %d provinces, and the most affordable is %s, %s.' % (starred, len(provs), cheap['name'], p2(cheap, lang))))
     rows = ''
     for i, l in enumerate(ls):
@@ -556,7 +578,7 @@ def build_top(lang):
     h += '<section class="sec"><div class="wrap">%s<div style="border-top:1px solid var(--line)"></div><p class="meta" style="margin-top:20px">%s</p></div></section>' % (
         rows, ('Hoe we tot deze volgorde komen, lees je op <a href="/zo-kiezen-wij/">Zo kiezen wij</a>.' if nl else 'How we arrive at this order is explained on <a href="/zo-kiezen-wij/">How we choose</a> (in Dutch).'))
     t1 = 'Top 10 restaurants met overnachting in Nederland (2026)' if nl else 'Top 10 restaurants with rooms in the Netherlands (2026)'
-    desc = ('Onze top 10 van adressen waar je dineert en blijft slapen, met %s op één. Met onze cijfers, de prijs voor twee en waarom wij er heen gaan.' % ls[0]['name']) if nl else \
+    desc = ('Onze top 10 van adressen waar je dineert en blijft slapen, met %s op één. Met onze cijfers, de prijs voor twee en waarom wij erheen gaan.' % ls[0]['name']) if nl else \
            ('Our top 10 places to dine and stay the night in the Netherlands, with %s at number one. With our scores, the price for two and why we go.' % ls[0]['name'])
     page(u_top(lang), lang, t1, desc, h, 'top', {'nl': u_top('nl'), 'en': u_top('en')}, [ld_crumbs(items), ld_itemlist(ls, lang)], og=og_img(ls[0]['img']), prio=0.9)
 
@@ -566,7 +588,7 @@ def build_theme(th):
     provs = sorted({PBY[l['prov']]['name'] for l in ls})
     v = [l['pz']['p2'] for l in ls]
     h = '<section class="dark hero"><div class="wrap">%s<div class="txt" style="margin-top:22px;max-width:820px;display:grid;gap:18px"><p class="k">Lijst</p><h1>%s</h1><p class="lead">%s</p><p class="lead">%s</p></div></div></section>' % (
-        crumbs(items), esc(th['h1']), esc(th['intro']), esc('%d adressen in %d provincies. Voor twee ben je %s tot %s kwijt voor diner, een nacht en ontbijt.' % (n, len(provs), eur(min(v)), eur(max(v)))))
+        crumbs(items), esc(th['h1']), esc(th['intro']), esc('%d adressen in %d provincies. Voor diner, een nacht en ontbijt ben je met z\'n tweeën %s tot %s kwijt.' % (n, len(provs), eur(min(v)), eur(max(v)))))
     rows = ''
     for i, l in enumerate(ls):
         rows += ('<article class="row"><div class="n">%d</div><div class="in"><a class="ph" href="%s">%s</a><div style="display:grid;gap:10px;align-content:start"><p class="k">%s</p><div class="hd"><h2><a href="%s" style="color:inherit;text-decoration:none">%s</a></h2><span class="score"><b>%s</b><small>ons cijfer</small></span></div>'
@@ -575,7 +597,7 @@ def build_theme(th):
             esc(l['place']), u_prov(l['prov'], 'nl'), esc(PBY[l['prov']]['name']), p2(l, 'nl'), chips(l, 'nl'), esc(l['kort']['nl']), u_loc(l, 'nl'))
     others = ''.join('<a class="mini" href="/%s/">%s<span><b>%s</b><span>%d adressen</span></span></a>' % (o['slug'], pic(o['locs'][0].get('th') or o['locs'][0]['img'], '', '76px', widths=(480,)), esc(o['nav']), len(o['locs'])) for o in THEMES if o is not th)
     h += '<section class="sec"><div class="wrap">%s<div style="border-top:1px solid var(--line)"></div></div></section><section class="sec alt"><div class="wrap stack"><p class="k">Meer lijsten</p><div class="minis">%s<a class="mini" href="/top-10/">%s<span><b>Top 10</b><span>Onze tien favorieten</span></span></a></div></div></section>' % (rows, others, pic(ORDER[0].get('th') or ORDER[0]['img'], '', '76px', widths=(480,)))
-    faq = [('Hoeveel adressen staan in deze lijst?', '%d adressen in %s.' % (n, lst(provs, 'nl'))), ('Wat kost het voor twee?', 'Van %s bij %s tot %s bij %s, voor diner, een nacht en ontbijt.' % (eur(min(v)), min(ls, key=lambda l: l['pz']['p2'])['name'], eur(max(v)), max(ls, key=lambda l: l['pz']['p2'])['name']))]
+    faq = [('Hoeveel adressen staan er in deze lijst?', '%d adressen in %s.' % (n, lst(provs, 'nl'))), ('Wat kost het voor twee?', 'Van %s bij %s tot %s bij %s, voor diner, een nacht en ontbijt.' % (eur(min(v)), min(ls, key=lambda l: l['pz']['p2'])['name'], eur(max(v)), max(ls, key=lambda l: l['pz']['p2'])['name']))]
     h += '<section class="sec white"><div class="narrow">%s</div></section>' % faq_html(faq, title='Kort gezegd')
     page('/%s/' % th['slug'], 'nl', th['title'].format(n=n), th['desc'].format(n=n), h, '', None, [ld_crumbs(items), ld_itemlist(ls, 'nl'), ld_faq(faq)], og=og_img(ls[0]['img']), prio=0.8)
 
@@ -624,7 +646,7 @@ def build_keur():
     h += ('<section class="sec" id="wie"><div class="narrow prose stack"><p class="k">Wie wij zijn</p><h2>Eigenlijk is dit gewoon ons dagboek</h2>'
           '<p>Wij gaan graag uit eten. En het liefst blijven we daarna slapen, zodat niemand hoeft te rijden en de avond niet ophoudt als de rekening komt. Daar rijden we met plezier een eind voor om.</p>'
           '<p>We zijn geen inspecteurs. We zijn liefhebbers. Ergens naartoe gaan, daar luxe dineren en dan boven in een goed bed stappen: daar worden wij gelukkig van. Daarom schrijven we het op, zodat we later kunnen teruglezen waar we waren en of we er nog eens heen willen.</p>'
-          '<p>Je leest hier dus een mening. De onze. Wie liever strak en modern slaapt dan in een bedstee, zal het niet altijd met ons eens zijn. Dat mag. Daarom schrijven we er steeds bij wat er te vinden is, dan kun je zelf inschatten of het iets voor jou is.</p></div></section>')
+          '<p>Je leest hier dus een mening. De onze. Wie liever strak en modern slaapt dan in een bedstee, zal het niet altijd met ons eens zijn. Dat mag. Daarom schrijven we er steeds bij wat je er aantreft. Dan kun je zelf inschatten of het iets voor jou is.</p></div></section>')
     h += ('<section class="sec alt" id="regels"><div class="narrow prose stack"><p class="k">Zo kiezen wij</p><h2>Wanneer een adres in dit boek komt</h2>'
           '<p>De regel is eenvoudig: je eet en je slaapt op hetzelfde adres. Na het dessert de trap op en klaar.</p>'
           '<p>Een hotel waar je voor het diner naar een andere deur moet, valt af. Ook als die deur ernaast zit. Hetzelfde geldt voor een restaurant met kamers een eind verderop. Het kunnen prima plekken zijn, maar ze horen niet in dit boek.</p>'
@@ -633,14 +655,14 @@ def build_keur():
           '<p>Adressen die het net niet haalden, zetten we niet op de site. Die delen we alleen in de <a href="/net-niet/">nieuwsbrief</a>.</p></div></section>')
     h += ('<section class="sec" id="cijfers"><div class="narrow prose stack"><p class="k">Onze cijfers</p><h2>Zo komen onze cijfers tot stand</h2>'
           '<p>Bij elk adres staan drie cijfers, van onszelf. Eten telt bij ons iets zwaarder dan de andere twee: %d procent, slapen en prijs elk %d.</p>'
-          '<ul><li><strong>Eten.</strong> De avond aan tafel: smaak, het menu, de ontvangst. Een ster helpt, maar een ster eet je niet op.</li><li><strong>Slapen.</strong> De kamer, het bed, de badkamer, de stilte, en het ontbijt de volgende ochtend.</li><li><strong>Prijs.</strong> Wat je voor de avond en de nacht samen betaalt, tegenover wat je krijgt. Een hoog cijfer betekent veel waar voor je geld, niet dat het goedkoop is.</li></ul>'
-          '<p>De prijs voor twee is wat twee personen kwijt zijn voor diner, één nacht en ontbijt, zonder drank tenzij die in het menu zit. We rekenen met wat het adres zelf op zijn site of in zijn boekingssysteem zet, voor een doordeweekse nacht in november 2026. Staat niet alles online, dan schatten we, en dat zetten we er dan bij. Hoe dat uitpakt, lees je in <a href="/verhalen/wat-kost-dineren-en-slapen/">wat een avond uit eten met overnachting kost</a>.</p>'
+          '<ul><li><strong>Eten.</strong> De avond aan tafel: smaak, het menu, de ontvangst. Een ster helpt, maar een ster eet je niet op.</li><li><strong>Slapen.</strong> De kamer, het bed, de badkamer, de stilte en het ontbijt de volgende ochtend.</li><li><strong>Prijs.</strong> Wat je voor de avond en de nacht samen betaalt, tegenover wat je krijgt. Een hoog cijfer betekent veel waar voor je geld, niet dat het goedkoop is.</li></ul>'
+          '<p>De prijs voor twee is wat twee personen kwijt zijn voor diner, één nacht en ontbijt, zonder drank, tenzij die bij het menu is inbegrepen. We rekenen met wat het adres zelf op zijn site of in zijn boekingssysteem zet, voor een doordeweekse nacht in november 2026. Staat niet alles online, dan schatten we en vermelden we dat erbij. Hoe dat uitpakt, lees je in ons stuk over <a href="/verhalen/wat-kost-dineren-en-slapen/">wat een avond uit eten met overnachting kost</a>.</p>'
           '<p>De prijs alleen bepaalt de plek niet. Het voordeligste adres is %s, %s, en staat op plek %d. Het duurste is %s, op plek %d. Bovenaan staan de adressen waar de avond, de nacht en de prijs samen het beste kloppen. Bekijk de <a href="/top-10/">top 10</a>.</p></div></section>') % (
         W0['e'], W0['s'], esc(cheap['name']), p2(cheap, 'nl'), RANK[cheap['id']], esc(dear['name']), RANK[dear['id']])
     labs = [('Michelinster', '%d adressen' % (s1 + s2 + s3), 'Eén ster: een keuken die een stop waard is. Twee sterren: een omweg waard. Drie: de reis zelf waard. In dit boek hebben %d adressen één ster, %d twee en %d drie.' % (s1, s2, s3)),
             ('Bib Gourmand', '%d adressen' % bib, 'Goed eten voor een redelijke prijs, volgens de Michelingids.'),
-            ('Michelin Sleutel', '%d adressen' % keys, 'De hotelvariant van de ster, voor bijzondere hotels.'),
-            ('Gault&Millau', '%d adressen' % gms, 'Punten op een schaal van twintig. Vanaf ongeveer veertien is het een adres om voor om te rijden.')]
+            ('Michelinsleutel', '%d adressen' % keys, 'De hotelvariant van de ster, voor bijzondere hotels.'),
+            ('Gault&Millau', '%d adressen' % gms, 'Punten op een schaal van twintig. Vanaf ongeveer veertien punten rijd je er graag voor om.')]
     h += '<section class="sec alt" id="keurmerken"><div class="narrow stack"><p class="k">Van de gidsen</p><h2>De keurmerken, in gewone taal</h2><p class="lead">Labels van de gidsen nemen we over zoals ze zijn, volgens de edities van 2026. Wij delen ze niet uit.</p><table class="t"><thead><tr><th>Keurmerk</th><th>In dit boek</th><th>Wat het betekent</th></tr></thead><tbody>%s</tbody></table></div></section>' % ''.join('<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % x for x in labs)
     h += ('<section class="sec" id="tip"><div class="narrow stack"><p class="k">Tip ons</p><h2>Ken jij een adres?</h2><p>Stuur ons je tip, met een regel erbij waarom we erheen moeten. Dan gaan we kijken. Of het daarna in het boek komt, hangt af van hoe het was.</p>'
           '<div class="fwrap"><form class="js-form" data-kind="tip" action="%s" style="display:grid;gap:14px;font:400 15px var(--sans)">'
@@ -650,21 +672,21 @@ def build_keur():
           '<label>Je e-mailadres (niet verplicht)<input class="inp" style="width:100%%" type="email" name="email" maxlength="200" autocomplete="email"></label><button class="btn" type="submit" style="justify-self:start">Verstuur je tip</button></form>' + ferr() +
           '<p class="thanks" role="status">Dank voor je tip. We gaan kijken.</p></div><p class="meta">Liever mailen? Dat kan op <a href="mailto:dinerenenslapen@gmail.com">dinerenenslapen@gmail.com</a>.</p></div></section>') % ('#', prov_opts)
     faq = [('Tellen reviews van anderen mee in jullie cijfer?', 'Nee. Ons cijfer is van onszelf. Wat anderen schrijven, lezen we graag, maar het telt niet mee.'),
-           ('Waarom staat het goedkoopste adres niet bovenaan?', 'Omdat prijs één van de drie cijfers is, en omdat het cijfer voor prijs gaat over wat je ervoor krijgt.'),
+           ('Waarom staat het goedkoopste adres niet bovenaan?', 'Omdat de prijs maar een van onze drie cijfers is, en dat cijfer gaat over wat je voor je geld krijgt.'),
            ('Waarom staat een hotel met een goed restaurant ernaast er niet in?', 'Omdat je in dit boek eet en slaapt op hetzelfde adres. Moet je voor het diner door een andere deur, dan valt het af.'),
            ('Kun je een plek in het boek kopen?', 'Nee. Een plek in het boek, in de top 10 of in onze cijfers is niet te koop. Partnerverhalen herken je aan het label In samenwerking met.'),
-           ('Hoe vaak verandert de lijst?', 'Als we ergens nog eens zijn geweest, als er een adres bijkomt of als een prijs of keurmerk verandert.')]
+           ('Hoe vaak verandert de lijst?', 'Telkens als we ergens opnieuw zijn geweest, als er een adres bijkomt of als een prijs of keurmerk verandert.')]
     h += '<section class="sec white" id="vragen"><div class="narrow">%s</div></section>' % faq_html(faq, title='Veelgestelde vragen')
     page('/zo-kiezen-wij/', 'nl', 'Zo kiezen wij: onze cijfers en de keurmerken uitgelegd', 'Hoe wij adressen kiezen, wat onze cijfers voor eten, slapen en prijs betekenen, en wat Michelinsterren, Bib Gourmand en Gault&Millau-punten zeggen.', h, 'keur', None, [ld_crumbs(items), ld_faq(faq)], prio=0.6)
 
 def build_net():
     items = [('Home', '/'), ('Net niet', None)]
     h = ('<section class="dark hero"><div class="wrap">%s<div class="grid" style="margin-top:22px"><div class="txt"><p class="k">Net niet</p><h1>Sommige avonden halen het boek niet.</h1><p class="sub">Waar dat was en waarom, lees je alleen in je mail.</p>'
-         '<p class="lead">We kijken naar meer adressen dan er in dit boek staan. Soms is de kamer prachtig en valt het eten tegen. Soms is het andersom. Die adressen zetten we niet op de site. Wie zich inschrijft, leest wel waar het was en waarom het net niet was.</p>'
+         '<p class="lead">We kijken naar meer adressen dan er in dit boek staan. Soms is de kamer prachtig en valt het eten tegen. Soms is het andersom. Die adressen zetten we niet op de site. Wie zich inschrijft, leest wel waar het was en waarom het net niet genoeg was.</p>'
          '<div class="panel">%s<p class="formnote">Eén mail per maand, gratis. Afmelden kan altijd. Je adres geven we aan niemand.</p></div></div><figure>%s</figure></div></div></section>') % (
         crumbs(items), newsletter_form('nl', 'nn').replace('class="btn"', 'class="btn"'), pic(D['img'].get('netniet'), 'Een eetzaal bij avond met kaarsen en een tafel voor twee bij het raam', '(max-width: 760px) 100vw, 380px', lazy=False, prio=True, cls='framed'))
     h += ('<section class="sec"><div class="wrap stack"><p class="k">In je mail</p><h2>Wat je elke maand krijgt</h2><div class="cards">'
-          '<div class="card"><div class="bd"><span class="cn">Net niet</span><p>Waar het was en waarom het het boek niet haalde. Met naam en plaats, en met wat er wel goed was.</p></div></div>'
+          '<div class="card"><div class="bd"><span class="cn">Net niet</span><p>Waar het was en waarom het niet in het boek kwam. Met naam en plaats, en met wat er wel goed was.</p></div></div>'
           '<div class="card"><div class="bd"><span class="cn">Nieuw in het boek</span><p>Komt er een adres bij, dan lees je het eerst in de mail. Pas daarna staat het op de site.</p></div></div>'
           '<div class="card"><div class="bd"><span class="cn">Nog aan het testen</span><p>Waar we binnenkort heen gaan. Ben je er al geweest? Antwoord gewoon op de mail.</p></div></div></div></div></section>')
     h += ('<section class="sec alt"><div class="narrow prose stack"><p class="k">Waarom zo</p><h2>Waarom niet gewoon op de site?</h2><p>Omdat één avond niet alles zegt. Een kok kan ziek zijn, een zaterdag te druk. Op een openbare pagina blijft zo\'n oordeel jaren staan, en dat vinden we niet eerlijk tegenover mensen die er elke dag hard voor werken.</p>'
@@ -677,7 +699,7 @@ def build_credits():
     items = [('Home', '/'), ('Beeldverantwoording', None)]
     rows = ''.join('<tr><td><a href="%s">%s</a></td><td>%s</td><td>%s</td></tr>' % (u_loc(l, 'nl'), esc(l['name']), ('<a href="%s" rel="nofollow noopener" target="_blank">%s</a>' % (esc(l['credu']), esc(l['cred'].replace('Foto: ', '')))) if l.get('credu') else esc(l['cred']),
                    ('<a href="%s" rel="license nofollow noopener" target="_blank">%s</a>' % (esc(l['licu']), esc(l['lic']))) if l.get('licu') else esc(l.get('lic') or '')) for l in sorted(LOCS, key=lambda x: x['name']) if l.get('cred'))
-    h = '<section class="sec"><div class="narrow stack">%s<h1 style="font-size:clamp(36px,6vw,54px)">Beeldverantwoording</h1><p>De tekeningen op deze site zijn voor Dineren en Slapen gemaakt. De foto\'s komen van Wikimedia Commons en worden gebruikt onder de genoemde licentie, met naamsvermelding. Ze zijn bijgesneden.</p><table class="t"><thead><tr><th>Adres</th><th>Foto</th><th>Licentie</th></tr></thead><tbody>%s</tbody></table></div></section>' % (crumbs(items, light=True), rows)
+    h = '<section class="sec"><div class="narrow stack">%s<h1 style="font-size:clamp(36px,6vw,54px)">Beeldverantwoording</h1><p>De tekeningen op deze site zijn voor Dineren en Slapen gemaakt. De foto\'s komen van Wikimedia Commons. We gebruiken ze onder de genoemde licentie, met naamsvermelding, en hebben ze bijgesneden.</p><table class="t"><thead><tr><th>Adres</th><th>Foto</th><th>Licentie</th></tr></thead><tbody>%s</tbody></table></div></section>' % (crumbs(items, light=True), rows)
     page('/beeldverantwoording/', 'nl', 'Beeldverantwoording | Dineren en Slapen', 'Wie de foto\'s op Dineren en Slapen maakte en onder welke licentie we ze gebruiken. Alle tekeningen zijn voor deze site gemaakt.', h, '', None, [ld_crumbs(items)], prio=0.2)
 
 def build_privacy():
@@ -710,7 +732,7 @@ def write_static():
     open(os.path.join(OUT, 'sitemap.xml'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n' + '\n'.join(urls) + '\n</urlset>\n')
     open(os.path.join(OUT, 'robots.txt'), 'w').write('User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: %s/sitemap.xml\n' % SITE)
     # llms.txt
-    L = ['# Dineren en Slapen', '', '> Onafhankelijke Nederlandse gids van restaurants met overnachting: adressen waar je dineert en blijft slapen onder één dak. %d adressen in twaalf provincies, met eigen cijfers voor eten, slapen en prijs, en een prijs voor twee (diner, een nacht en ontbijt, gecheckt in hun eigen boekingssysteem voor een doordeweekse nacht in november 2026).' % len(LOCS), '',
+    L = ['# Dineren en Slapen', '', '> Onafhankelijke Nederlandse gids van restaurants met overnachting: adressen waar je dineert en blijft slapen onder één dak. %d adressen in twaalf provincies, met eigen cijfers voor eten, slapen en prijs, en een prijs voor twee (diner, een nacht en ontbijt, gecontroleerd in hun eigen boekingssysteem voor een doordeweekse nacht in november 2026).' % len(LOCS), '',
          'Regels: eten en slapen op hetzelfde adres, geen ketens, geen maximum per provincie. Een plek in het boek is niet te koop.', '', '## Belangrijkste pagina\'s', '',
          '- [Top 10 restaurants met overnachting](%s/top-10/): onze tien favorieten, met %s op één' % (SITE, ORDER[0]['name']), '- [Zo kiezen wij](%s/zo-kiezen-wij/): regels, cijfers en keurmerken uitgelegd' % SITE, '- [Verhalen](%s/verhalen/): prijzen, arrangementen en regio\'s' % SITE, '', '## Per provincie', '']
     for p in PROV_ORDER:
@@ -755,6 +777,7 @@ def main():
     keep_img = os.path.join(OUT, 'img')
     if os.path.exists(OUT):
         for f in os.listdir(OUT):
+            if f in ('img', 'og.jpg') and f == 'og.jpg' and not src_path('omslag'): continue
             if f != 'img': (shutil.rmtree if os.path.isdir(os.path.join(OUT, f)) else os.remove)(os.path.join(OUT, f))
     for lang in ('nl', 'en'):
         build_home(lang); build_top(lang)

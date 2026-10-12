@@ -304,7 +304,7 @@
     var qq = q('ms-q');
     var rows = S.messages.filter(function (r) { return (S.ms === 'alle' || r.status === S.ms) && (S.mk === 'alle' || r.kind === S.mk) && (!qq || [r.name, r.email, r.subject, r.address_name, r.address_place, r.province, r.body].join(' ').toLowerCase().indexOf(qq) >= 0); });
     var box = clear($('ms-list'));
-    if (!rows.length) { box.appendChild(el('p', { class: 'empty', text: S.ms === 'nieuw' ? 'Geen nieuwe berichten. Alles is bijgewerkt.' : 'Geen berichten in deze selectie.' })); return; }
+    if (!rows.length) { box.appendChild(el('p', { class: 'empty', text: S.ms === 'nieuw' ? 'Geen nieuwe berichten. Alles is afgehandeld.' : 'Geen berichten in deze selectie.' })); return; }
     rows.forEach(function (r) {
       var mail = safeMail(r.email), tip = r.kind === 'tip';
       var title = tip ? 'Tip: ' + r.address_name + (r.address_place ? ', ' + r.address_place : '') : (r.subject || 'Bericht');

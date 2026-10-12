@@ -64,7 +64,7 @@ def book_prov_pane(P, lang):
             esc(' · '.join([l['place']] + label_line(l, lang)[:1] + [eur(l['pz']['p2'], lang) + (' voor twee' if nl else ' for two')])), esc(l['tag'][lang]), n1(total(l), lang))
     if P.get('open'):
         rows += ('<div class="brow open"><span class="th"><b class="rk">%d</b></span><span class="bd"><span class="rn">%s %d</span><span class="meta">%s <a href="/zo-kiezen-wij/#tip">%s</a></span></span></div>') % (
-            len(ls) + 1, 'Plek' if nl else 'Place', len(ls) + 1, 'We zijn dit nog aan het testen.' if nl else 'We are still testing this one.', 'Tip ons een adres' if nl else 'Suggest an address')
+            len(ls) + 1, 'Plek' if nl else 'Place', len(ls) + 1, 'Dit adres testen we nog.' if nl else 'We are still testing this one.', 'Tip ons een adres' if nl else 'Suggest an address')
     return ('<div class="pane" data-pane="%s" hidden><div class="phd"><button type="button" class="back" data-home>%s%s</button><span class="k">%s %s</span></div>'
             '%s<h2 tabindex="-1">%s</h2><p class="pi">%s</p><div class="rows">%s</div>'
             '<div class="links2"><a class="pl" href="#adressen" data-scope="%s">%s %s</a><a class="pl" href="%s">%s %s</a></div></div>') % (
@@ -136,7 +136,7 @@ def explorer(lang):
         'Sorteer op' if nl else 'Sort by', 'Sorteer op' if nl else 'Sort by', sorts, 'Wis filters' if nl else 'Clear filters',
         'Geen adressen binnen deze keuze' if nl else 'No addresses within this selection', 'Maak het budget ruimer, kies een grotere straal of haal een filter weg.' if nl else 'Widen the budget, choose a larger radius or remove a filter.',
         cards, ('Toon alle %d adressen' if nl else 'Show all %d addresses') % len(LOCS),
-        'Prijzen zijn voor twee personen: diner, een nacht en ontbijt, dranken niet inbegrepen tenzij vermeld. We halen ze van de eigen sites van de adressen (oktober 2026). Afstanden zijn hemelsbreed en op postcodegebied nauwkeurig; reken voor de rijafstand op ongeveer een derde meer.' if nl else
+        'Prijzen gelden voor twee personen: diner, een nacht en ontbijt, zonder drank tenzij anders vermeld. We halen ze van de sites van de adressen zelf (oktober 2026). Afstanden zijn hemelsbreed gemeten, nauwkeurig tot op het postcodegebied. Reken voor de rijafstand op ongeveer een derde meer.' if nl else
         'Prices are for two people: dinner, one night and breakfast, drinks not included unless stated. We take them from each address\'s own website (October 2026). Distances are as the crow flies and accurate to postcode area; allow roughly a third more for the drive.')
 
 def home_sections(lang):
@@ -145,7 +145,7 @@ def home_sections(lang):
         u_loc(l, lang), i + 1, pic(thumb(l), '', '108px', widths=(480,)), esc(l['name']), esc(l['place']), esc(pname(PBY[l['prov']], lang)), esc(l['tag'][lang]), n1(total(l), lang)) for i, l in enumerate(ORDER[:5]))
     h = ('<section class="sec2 dark"><div class="wrap two2"><div class="stack0"><p class="k">%s</p><h2>%s</h2><p class="lead">%s</p><p><a class="btn" href="%s">%s</a></p></div><ol class="top5">%s</ol></div></section>') % (
         'De lijst' if nl else 'The list', 'De top 10 van Nederland' if nl else 'The top 10 of the Netherlands',
-        'Tien adressen waar een avond aan tafel en een nacht in huis samen de reis waard zijn. De volgorde is die van onze eigen cijfers voor eten, slapen en prijs.' if nl else
+        'Tien adressen waar de avond aan tafel en de nacht erna samen de reis waard zijn. De volgorde is die van onze eigen cijfers voor eten, slapen en prijs.' if nl else
         'Ten addresses where an evening at the table and a night in the house are worth the journey together. The order follows our own scores for food, stay and price.',
         u_top(lang), 'Bekijk de hele top 10' if nl else 'See the full top 10', top)
     cards = ''
@@ -283,10 +283,10 @@ def build_home(lang):
         h += '<section class="sec"><div class="wrap" style="display:grid;gap:28px"><div class="stack0"><p class="k">Lijsten</p><h2>Waar heb je zin in?</h2></div><div class="minis">%s</div></div></section>' % ''.join(
             '<a class="mini" href="/%s/">%s<span><b>%s</b><span>%d adressen</span></span></a>' % (th['slug'], pic(th['locs'][0].get('th') or th['locs'][0]['img'], '', '76px', widths=(480,)), esc(th['nav']), len(th['locs'])) for th in THEMES)
         h += '<section class="sec alt"><div class="wrap" style="display:grid;gap:28px"><div class="stack0"><p class="k">Verhalen</p><h2>Over tafels, bedden en wat het kost</h2></div><div class="cards">%s</div><p><a href="/verhalen/">Alle verhalen</a></p></div></section>' % ''.join(post_card(a) for a in POSTS[:3])
-    faq = ([('Wat is een restaurant met overnachting?', 'Een restaurant waar je na het diner kunt blijven slapen, op hetzelfde adres. In dit boek staan alleen adressen waar je eet en slaapt onder één dak, geen hotels waar je voor het diner naar een andere deur moet.'),
-            ('Wat kost een diner met overnachting?', 'Op de %d adressen in dit boek ligt de middelste rekening rond de %s voor twee, voor diner, een nacht en ontbijt, zonder drank.' % (len(LOCS), eur(sorted(l['pz']['p2'] for l in LOCS)[len(LOCS) // 2]))),
+    faq = ([('Wat is een restaurant met overnachting?', 'Een restaurant waar je na het diner kunt blijven slapen, op hetzelfde adres. In dit boek staan alleen adressen waar je eet en slaapt onder één dak, geen hotels waar je voor het diner een andere deur door moet.'),
+            ('Wat kost een diner met overnachting?', 'Van de %d adressen in dit boek ligt de middelste prijs rond de %s voor twee, voor diner, een nacht en ontbijt, zonder drank.' % (len(LOCS), eur(sorted(l['pz']['p2'] for l in LOCS)[len(LOCS) // 2]))),
             ('Welk adres staat op nummer één?', '%s in %s, gevolgd door %s en %s.' % (ORDER[0]['name'], ORDER[0]['place'], ORDER[1]['name'], ORDER[2]['name'])),
-            ('Wat betekent een blauwe stip op de kaart?', 'Dat is per provincie het adres dat bij ons het hoogste cijfer heeft. De rode stippen zijn de andere adressen in het boek.')] if nl else
+            ('Wat betekent een blauwe stip op de kaart?', 'Een blauwe stip is per provincie het adres met ons hoogste cijfer. De rode stippen zijn de andere adressen in het boek.')] if nl else
            [('What is a restaurant with rooms?', 'A restaurant where you can stay the night after dinner, at the same address. This book only lists places where you dine and sleep under one roof.'),
             ('Which address is number one?', '%s in %s, followed by %s and %s.' % (ORDER[0]['name'], ORDER[0]['place'], ORDER[1]['name'], ORDER[2]['name'])),
             ('What does a blue dot on the map mean?', 'It marks the address with our highest score in each province. The red dots are the other addresses in the book.')])

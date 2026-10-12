@@ -6,7 +6,10 @@ def og_img(blob):
     bid = blob.rsplit('/', 1)[-1] if blob else ''
     name = bid[4:] if bid.startswith('own:') else BLOB2NAME.get(bid)
     sp = src_path(name) if name else None
-    if not sp: return SITE + '/og.jpg'
+    if not sp:
+        # bronbeeld niet beschikbaar: gebruik de eerder gebouwde deelafbeelding
+        if name and os.path.exists(os.path.join(OUT, 'img', 'og', '%s.jpg' % name)): return SITE + '/img/og/%s.jpg' % name
+        return SITE + '/og.jpg'
     os.makedirs(os.path.join(OUT, 'img', 'og'), exist_ok=True)
     fn = '%s.jpg' % name; fp = os.path.join(OUT, 'img', 'og', fn)
     if not os.path.exists(fp):
