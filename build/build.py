@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Bouwt dinerenenslapen.nl als statische site in ../docs (GitHub Pages).
 
-Alles staat als gewone HTML op een eigen URL. Geen framework, geen tracking,
+Alles staat als gewone HTML op een eigen URL. Geen framework; meten via Google Tag Manager met toestemmingsmodus (analytics.py),
 alleen een paar regels JavaScript voor formulieren.
 """
 import json, os, re, shutil, html, math, datetime, hashlib
@@ -749,6 +749,7 @@ def write_static():
 exec(open(os.path.join(HERE, 'forms.py')).read())
 exec(open(os.path.join(HERE, 'social.py')).read())
 exec(open(os.path.join(HERE, 'seo.py')).read())
+exec(open(os.path.join(HERE, 'analytics.py')).read())
 
 def main():
     keep_img = os.path.join(OUT, 'img')
