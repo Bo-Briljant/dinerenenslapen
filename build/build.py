@@ -369,7 +369,7 @@ def page(path, lang, title, desc, body, active='', alt=None, ld=None, og=None, p
            '<title>%s</title><meta name="description" content="%s"><link rel="canonical" href="%s%s">%s%s'
            '<meta name="robots" content="%s"><meta name="theme-color" content="#10231C">'
            '<meta property="og:type" content="%s"><meta property="og:site_name" content="Dineren en Slapen"><meta property="og:locale" content="%s"><meta property="og:title" content="%s"><meta property="og:description" content="%s"><meta property="og:url" content="%s%s"><meta property="og:image" content="%s"><meta name="twitter:card" content="summary_large_image">'
-           '<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="32x32"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">'
+           '<link rel="icon" href="/favicon.ico?v=2" sizes="any"><link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2"><link rel="manifest" href="/site.webmanifest">'
            '<style>%s</style><script type="application/ld+json">%s</script></head><body>%s<main id="inhoud">%s</main>%s<script>%s</script></body></html>') % (
         lang, esc(title), esc(desc), SITE, path, links, pre, 'noindex,follow' if noindex else 'index,follow,max-image-preview:large', ptype, 'nl_NL' if lang == 'nl' else 'en_GB',
         esc(title), esc(desc), SITE, path, esc(ogimg), CSS, json.dumps({'@context': 'https://schema.org', '@graph': graph}, ensure_ascii=False).replace('</', '<\\/'),
@@ -751,16 +751,9 @@ def write_static():
     L += ['', '## Verhalen', ''] + ['- [%s](%s%s): %s' % (a['title']['nl'], SITE, u_post(a['slug']), a['metaDesc']) for a in POSTS]
     L += ['', '## Optional', '', '- [English version](%s/en/): restaurants with rooms in the Netherlands' % SITE]
     open(os.path.join(OUT, 'llms.txt'), 'w').write('\n'.join(L) + '\n')
-    # beeldmerk
-    open(os.path.join(OUT, 'favicon.svg'), 'w').write('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#10231C"/><text x="32" y="45" text-anchor="middle" font-family="Georgia,serif" font-size="40" font-style="italic" fill="#D2AD5C">&amp;</text></svg>')
-    for size, name in ((32, 'favicon.ico'), (180, 'apple-touch-icon.png'), (192, 'icon-192.png'), (512, 'icon-512.png')):
-        im = Image.new('RGB', (size, size), '#10231C')
-        from PIL import ImageDraw, ImageFont
-        dr = ImageDraw.Draw(im)
-        try: ft = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSerif-Italic.ttf', int(size * .62))
-        except Exception: ft = ImageFont.load_default()
-        dr.text((size / 2, size * .52), '&', fill='#D2AD5C', font=ft, anchor='mm')
-        im.save(os.path.join(OUT, name), 'ICO' if name.endswith('.ico') else 'PNG')
+    # beeldmerk: de cursieve & uit Cormorant Garamond (zoals in het logo), vaste bestanden in build/icons
+    for name in ('favicon.svg', 'favicon.ico', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png'):
+        shutil.copy(os.path.join(HERE, 'icons', name), os.path.join(OUT, name))
     json.dump({'name': 'Dineren en Slapen', 'short_name': 'Dineren & Slapen', 'start_url': '/', 'display': 'browser', 'background_color': '#F4F0E6', 'theme_color': '#10231C',
                'icons': [{'src': '/icon-192.png', 'sizes': '192x192', 'type': 'image/png'}, {'src': '/icon-512.png', 'sizes': '512x512', 'type': 'image/png'}]}, open(os.path.join(OUT, 'site.webmanifest'), 'w'))
     sp = src_path('omslag')
